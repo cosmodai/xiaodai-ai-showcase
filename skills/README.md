@@ -1,8 +1,8 @@
 # 公开 Skills / Public Skills
 
-小戴在日常运营里使用的十五个工作流，去掉了真实数据和内部细节后公开。每个 Skill 都写明了步骤、验收条件和一个可以复算的示例。
+小戴在日常运营里使用的十六个工作流，去掉了真实数据和内部细节后公开。每个 Skill 都写明了步骤、验收条件和一个可以复算的示例。
 
-Fifteen workflows Xiaodai uses in daily operations, published without real data or internal details. Each one states its steps, acceptance criteria and a worked example you can recompute.
+Sixteen workflows Xiaodai uses in daily operations, published without real data or internal details. Each one states its steps, acceptance criteria and a worked example you can recompute.
 
 | Skill | 用途 | Use |
 | --- | --- | --- |
@@ -21,6 +21,7 @@ Fifteen workflows Xiaodai uses in daily operations, published without real data 
 | [storefront-menu-and-assets](storefront-menu-and-assets/SKILL.md) | 整店菜单与营销物料 | Whole-Store Menu and Assets |
 | [bd-visit-activation](bd-visit-activation/SKILL.md) | BD 拜访与签后动销 | BD Visits and Activation |
 | [dashboard-publication-verification](dashboard-publication-verification/SKILL.md) | 看板发布核验 | Dashboard Publication Verification |
+| [settlement-reconciliation](settlement-reconciliation/SKILL.md) | 账务结算对账 | Settlement Reconciliation |
 
 ## 怎么用 / How to use
 
@@ -56,3 +57,4 @@ You can also paste a `SKILL.md` into any assistant as a prompt.
 - [整店菜单与营销物料 / Whole-Store Menu and Assets](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=menuPack&lang=en)
 - [BD 拜访与签后动销 / BD Visits and Activation](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=bdFunnel&lang=en)
 - [看板发布核验 / Dashboard Publication Verification](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=dashboard&lang=en)
+- [账务结算对账 / Settlement Reconciliation](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=reconcile&lang=en)
