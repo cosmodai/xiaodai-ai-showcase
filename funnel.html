@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hans"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>转化漏斗诊断 / Conversion Funnel Diagnostics</title><link rel="stylesheet" href="style.css?v=20261106-bilingual">
+<style>.demo-nav{display:flex;gap:1rem;flex-wrap:wrap}.demo-table{overflow:auto}.demo-table td,.demo-table th{min-width:6.5rem}.drop{color:#8a2c1c;font-weight:700}.store-view img{width:min(100%,20rem);height:auto;border-radius:.6rem}.store-view [data-crop]{aspect-ratio:2.6;object-fit:cover;object-position:top}.store-view ul{padding-left:1.25rem;line-height:1.6}.demo-nav a[aria-current]{text-decoration:none;color:#132624}</style>
+<body><nav class="demo-nav"><a id="home"></a><a id="language"></a></nav><main>
+<header><p class="kicker">XIAODAI AI · SYNTHETIC DEMO</p><h1 id="title"></h1><p id="intro"></p></header>
+<section><div class="grid">
+<label><span id="market-label"></span><select id="market"></select></label>
+<label><span id="time-label"></span><select id="time"></select></label>
+</div></section>
+<section><h2 id="results"></h2><div class="demo-table"><table><thead id="head"></thead><tbody id="funnel-rows"></tbody></table></div><p role="status" id="diagnosis"></p><p id="method"></p></section>
+<p><a id="skill" href="https://github.com/cosmodai/xiaodai-ai-showcase/tree/main/skills/conversion-funnel-diagnostics"></a></p></main>
+<script>
+const en = new URLSearchParams(location.search).get("lang") === "en";
+const t = (zh, english) => en ? english : zh;
+document.documentElement.lang = t("zh-Hans","en");
+document.title = t("转化漏斗诊断", "Conversion Funnel Diagnostics") + " · Xiaodai AI";
+const home = document.getElementById("home");
+home.href = t("./","./?lang=en");
+home.textContent = t("← 小戴 AI 作品集","← Xiaodai AI portfolio");
+const language = document.getElementById("language");
+language.href = t("?lang=en","?");
+language.textContent = t("English","中文");
+const byId = (id) => document.getElementById(id);
+const label = (id, zh, english) => { byId(id).textContent = t(zh, english); };
+
+label("title","转化漏斗诊断","Conversion Funnel Diagnostics");
+label("intro","选择区域和时段，对照两个等长窗口的曝光、进店、加购、结算、支付。示例数据为合成数据。","Choose a market and daypart to compare impressions, visits, carts, checkouts and payments across two equal windows. The counts are synthetic.");
+label("market-label","区域","Market");
+label("time-label","时段","Daypart");
+label("results","逐层对照","Stage-by-stage comparison");
+label("method","各阶段转化率 = 下一阶段 ÷ 当前阶段。全量先汇总计数再计算转化率。阶段变化用于定位调查方向。","Each stage rate is the next count divided by the current count. Combined views sum counts before calculating rates. Stage changes guide investigation.");
+label("skill","查看公开 Skill →","Read the public Skill →");
+function options(id, items) {
+  byId(id).replaceChildren(...items.map(([value, zh, english]) => new Option(t(zh, english), value)));
+}
+options("market",[["all","全部区域","All markets"],["north","北区","North"],["south","南区","South"]]);
+options("time",[["all","全部时段","All dayparts"],["dinner","晚餐","Dinner"],["lunch","午餐","Lunch"]]);
+const sample = [
+  {market:"north",time:"dinner",base:[5000,1000,500,400,350],current:[5000,1000,350,280,245]},
+  {market:"north",time:"lunch",base:[3000,600,300,240,210],current:[3200,640,320,256,224]},
+  {market:"south",time:"dinner",base:[4000,800,400,320,280],current:[4000,800,400,320,240]},
+  {market:"south",time:"lunch",base:[2000,400,200,160,140],current:[2000,400,200,160,140]}
+];
+const stages = t(["曝光","进店","加购","结算","支付"],["Impression","Visit","Cart","Checkout","Payment"]);
+const fmt = new Intl.NumberFormat(en ? "en-CA" : "zh-CN");
+function row(container, values, heading=false, highlight=false) {
+  const tr = document.createElement("tr");
+  if (highlight) tr.className = "drop";
+  for (const value of values) {
+    const td = document.createElement(heading ? "th" : "td");
+    if (heading) td.scope = "col";
+    td.textContent = value;
+    tr.append(td);
+  }
+  container.append(tr);
+}
+row(byId("head"),t(["环节","基准计数","本期计数","基准转化","本期转化","差值"],["Stage","Baseline count","Current count","Baseline rate","Current rate","Change"]),true);
+function update() {
+  const market = byId("market").value;
+  const time = byId("time").value;
+  const rows = sample.filter(r => (market === "all" || r.market === market) && (time === "all" || r.time === time));
+  const sum = (field) => stages.map((_,i) => rows.reduce((total,r) => total+r[field][i],0));
+  const base = sum("base"), current = sum("current");
+  const rates = stages.slice(1).map((stage,i) => {
+    const b = base[i] ? 100*base[i+1]/base[i] : null;
+    const c = current[i] ? 100*current[i+1]/current[i] : null;
+    return {stage,b,c,delta:b===null||c===null?null:c-b};
+  });
+  const worst = rates.filter(r => r.delta !== null && r.delta < -0.0001).sort((a,b)=>a.delta-b.delta)[0];
+  const body = byId("funnel-rows");
+  body.replaceChildren();
+  row(body,[stages[0],fmt.format(base[0]),fmt.format(current[0]),"—","—","—"]);
+  rates.forEach((r,i)=>row(body,[stages[i]+" → "+r.stage,fmt.format(base[i+1]),fmt.format(current[i+1]),r.b===null?"—":r.b.toFixed(1)+"%",r.c===null?"—":r.c.toFixed(1)+"%",r.delta===null?"—":(r.delta>0?"+":"")+r.delta.toFixed(1)+t(" 个百分点"," pp")],false,r===worst));
+  byId("diagnosis").textContent = worst
+    ? t("最大降幅出现在 ","Largest rate drop: ")+stages[rates.indexOf(worst)]+" → "+worst.stage+" ("+Math.abs(worst.delta).toFixed(1)+t(" 个百分点)。"," percentage points).")
+    : t("这个切片没有出现环节转化率下降。","No stage rate declined in this slice.");
+}
+byId("market").addEventListener("change",update);
+byId("time").addEventListener("change",update);
+update();
+</script></body></html>
