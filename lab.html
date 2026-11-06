@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-Hans">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xiaodai AI · Operations Lab</title>
+<link rel="stylesheet" href="style.css?v=20261106-bilingual">
+<link rel="icon" href="assets/favicon.svg">
+<style>
+nav,.controls{display:flex;gap:1rem;flex-wrap:wrap}
+select{font:inherit;padding:.5rem;border:1px solid #839a90;border-radius:.4rem;background:white}
+label{display:grid;gap:.35rem;margin-block:.5rem}
+.table-wrap{overflow-x:auto}
+td,th{min-width:5.2rem}
+summary{cursor:pointer;font-weight:700}
+.pass{color:#1f5e43}.fail{color:#8a2c1c}
+</style>
+<body>
+<nav><a id="home"></a><a id="language"></a><span id="demo-links"></span></nav>
+<main>
+<header><p class="kicker">XIAODAI AI · SYNTHETIC DEMO</p><h1 id="title"></h1><p id="intro"></p></header>
+<section><div class="controls" id="controls"></div><h2 id="result-title"></h2><div class="table-wrap" id="results"></div><p id="conclusion" role="status"></p></section>
+<section><details open><summary id="fixture-title"></summary><p id="rules"></p><div class="table-wrap" id="fixture"></div></details></section>
+<p><a id="skill"></a></p>
+</main>
+<script>
+const query = new URLSearchParams(location.search);
+const en = query.get("lang") === "en";
+const t = (zh, english) => en ? english : zh;
+const byId = id => document.getElementById(id);
+const set = (id, value) => { byId(id).textContent = value; };
+const specs = {"retention": ["cohort-retention", "用户留存", "Cohort Retention", "只比较观察完整的首单批次，区分整体复购与无券复购。", "Compare mature first-order cohorts and distinguish repeat orders with and without a coupon."], "coupon": ["coupon-redemption", "红包核销", "Coupon Redemption", "核对发券、核销、费用和用户真实下单间隔。", "Reconcile issuance, redemption, funding and observed order gaps."], "delivery": ["delivery-tail-analysis", "配送长尾", "Delivery Tail Analysis", "对比均值、P90、长单率和超过预计送达上限的比例。", "Compare the mean, P90, long-duration share and missed delivery estimates."], "checks": ["known-answer-acceptance", "已知答案验收", "Known-Answer Acceptance", "运行同一组固定答案，看看有缺陷的实现如何被抓住。", "Run fixed expected answers against a correct or faulty implementation."]};
+const requested = query.get("demo");
+const demo = Object.hasOwn(specs, requested) ? requested : "retention";
+const url = (key, english) => "?demo="+key+(english?"&lang=en":"");
+document.documentElement.lang = t("zh-Hans","en");
+const [slug,zh,enName,zhIntro,enIntro] = specs[demo];
+document.title = t(zh,enName)+" · Xiaodai AI";
+set("title",t(zh,enName));
+set("intro",t(zhIntro,enIntro));
+set("result-title",t("计算结果","Results"));
+set("fixture-title",t("样例输入与口径","Fixture and calculation rules"));
+for (const [id,href,text] of [
+  ["home",t("./","./?lang=en"),t("← 作品集","← Portfolio")],
+  ["language",url(demo,!en),t("English","中文")],
+  ["skill","https://github.com/cosmodai/xiaodai-ai-showcase/tree/main/skills/"+slug,t("查看脱敏 Skill →","Read the public Skill →")],
+]) { byId(id).href=href; set(id,text); }
+Object.entries(specs).forEach(([key,info],i)=>{
+  const a=document.createElement("a");
+  a.href=url(key,en); a.textContent=t(info[1],info[2]);
+  if(key===demo)a.setAttribute("aria-current","page");
+  if(i)byId("demo-links").append(" · ");
+  byId("demo-links").append(a);
+});
+const pct=(n,d)=>d?(100*n/d).toFixed(1)+"% ("+n+"/"+d+")":"—";
+function table(id,headers,rows) {
+  const tbl=document.createElement("table");
+  const head=tbl.createTHead().insertRow();
+  for(const heading of headers){
+    const th=document.createElement("th");
+    th.scope="col";th.textContent=heading;head.append(th);
+  }
+  const body=tbl.createTBody();
+  for(const row of rows){
+    const tr=body.insertRow();
+    for(const value of row)tr.insertCell().textContent=value;
+  }
+  byId(id).replaceChildren(tbl);
+}
+function control(id,title,options,update) {
+  const label=document.createElement("label");
+  const text=document.createElement("span");
+  const input=document.createElement("select");
+  input.id=id;text.textContent=title;
+  for(const [key,caption] of options)input.add(new Option(caption,key));
+  label.append(text,input);byId("controls").append(label);
+  input.addEventListener("change",update);
+  return input;
+}
+function retention() {
+  const cutoff=35;
+  // Each user is listed once. Repeat events are [day since first order, used coupon].
+  const cohorts=[
+    ["A",0,[[[5,true],[18,false]],[[14,true]],[[30,false]],[]]],
+    ["B",7,[[[6,false]],[[28,true]],[],[]]],
+    ["C",21,[[[3,false]],[[8,true]],[],[]]],
+  ];
+  const window=control("window",t("观察窗口","Follow-up window"),[[28,t("28 天","28 days")],[14,t("14 天","14 days")],[7,t("7 天","7 days")]],render);
+  set("rules",t("统一截止到第 35 天。每位用户一行，重复订单写作「首单后第几天／是否用券」。只有首单批次已观察满窗口才纳入，窗口内按用户去重。","The cutoff is day 35. Each row is one user. Repeat events show days after the first order and coupon status. Include a cohort only after full follow-up and count each user once."));
+  table("fixture",t(["用户","首单日","复购记录"],["User","First-order day","Repeat events"]),cohorts.flatMap(([key,first,users])=>users.map((events,i)=>[key+(i+1),first,events.map(([d,c])=>d+" / "+(c?t("有券","coupon"):t("无券","no coupon"))).join(", ")||"—"])));
+  function render() {
+    const days=Number(window.value);
+    table("results",t(["批次","已观察天数","合格用户","整体复购","至少一次无券复购"],["Cohort","Observed days","Eligible users","Any repeat","At least one repeat without a coupon"]),cohorts.map(([key,first,users])=>{
+      const elapsed=cutoff-first;
+      if(elapsed<days)return [key,elapsed,t("未成熟","Immature"),"—","—"];
+      const repeats=users.filter(events=>events.some(([d])=>d>=1&&d<=days)).length;
+      const organic=users.filter(events=>events.some(([d,c])=>d>=1&&d<=days&&!c)).length;
+      return [key,elapsed,users.length,pct(repeats,users.length),pct(organic,users.length)];
+    }));
+    set("conclusion",t("无券复购率描述样例中已观察到的行为，不能估计取消发券后的复购率。","Repeat purchase without a coupon describes observed behavior. It does not estimate retention under a no-coupon policy."));
+  }
+  render();
+}
+function coupon() {
+  // Each row is a unique issued coupon: coupon, recipient, valid redemption, funded cents, observed prior gap.
+  const data={
+    A:[["A1","U1",true,200,35],["A2","U1",true,300,2],["A3","U2",true,200,"first"],["A4","U3",false,0,null],["A5","U4",false,0,null],["A6","U5",false,0,null]],
+    B:[["B1","U3",true,100,14],["B2","U4",true,150,"unknown"],["B3","U5",false,0,null]],
+  };
+  const campaign=control("campaign",t("活动","Campaign"),[["A","A"],["B","B"]],render);
+  const threshold=control("gap",t("回流候选间隔","Observed gap threshold"),[[30,t("至少 30 天","At least 30 days")],[14,t("至少 14 天","At least 14 days")],[7,t("至少 7 天","At least 7 days")]],render);
+  set("rules",t("核销率按券数算，发放与使用人数按用户去重。回流候选只计已知的上次有效订单间隔；首次观察和历史未知分列。","Coupon counts determine redemption rate. Recipient and redeemer counts deduplicate users. The gap threshold applies only to known prior orders. First observed orders and unknown histories are separate."));
+  const gapLabel=gap=>typeof gap==="number"?gap+t(" 天"," days"):gap==="first"?t("首次观察下单","First observed order"):gap==="unknown"?t("历史未知","History unknown"):"—";
+  function render() {
+    const rows=data[campaign.value], used=rows.filter(r=>r[2]);
+    const users=(records)=>new Set(records.map(r=>r[1])).size;
+    const cost=used.reduce((sum,r)=>sum+r[3],0);
+    const qualifying=used.filter(r=>typeof r[4]==="number"&&r[4]>=Number(threshold.value)).length;
+    table("results",t(["指标","结果"],["Metric","Result"]),[
+      [t("发券 / 触达用户","Issued / recipients"),rows.length+" / "+users(rows)],
+      [t("核销率","Redemption rate"),pct(used.length,rows.length)],
+      [t("核销用户","Unique redeemers"),users(used)],
+      [t("已核销补贴","Funded redemption cost"),"CA$"+(cost/100).toFixed(2)],
+      [t("满足间隔的核销","Redemptions meeting gap threshold"),qualifying],
+      [t("首次观察下单 / 历史未知","First observed order / unknown history"),used.filter(r=>r[4]==="first").length+" / "+used.filter(r=>r[4]==="unknown").length],
+    ]);
+    table("fixture",t(["券","用户","已核销","补贴","距上次有效单"],["Coupon","User","Redeemed","Funding","Prior-order gap"]),rows.map(([id,u,redeemed,cents,gap])=>[id,u,redeemed?t("是","Yes"):t("否","No"),"CA$"+(cents/100).toFixed(2),gapLabel(gap)]));
+    set("conclusion",t("间隔筛选标记的是符合条件的核销事件。评估增量召回仍需对照。","The gap threshold marks qualifying redemption events. Measuring incremental reactivation requires a comparison."));
+  }
+  render();
+}
+const countAbove=(durations,limit,bug=false)=>durations.filter(n=>bug?n>=limit:n>limit).length;
+function delivery() {
+  const data={
+    dinner:{East:Array(10).fill(38),West:[30,30,30,30,30,30,30,30,70,70]},
+    lunch:{East:[25,30,35,40],West:[20,25,35,60]},
+  };
+  const daypart=control("daypart",t("时段","Daypart"),[["dinner",t("晚餐","Dinner")],["lunch",t("午餐","Lunch")]],render);
+  const limit=control("duration-limit",t("长单阈值","Long-duration threshold"),[[60,t("超过 60 分钟","Above 60 min")],[45,t("超过 45 分钟","Above 45 min")],[30,t("超过 30 分钟","Above 30 min")]],render);
+  set("rules",t("所有样例订单均已完成。耗时从确认到送达。P90 为升序第 ⌈0.9×N⌉ 项。预计送达偏差独立计算，只纳入有预计上限的订单。","All fixture orders are complete. Duration runs from confirmation to delivery. Nearest-rank P90 is the sorted item at rank ceil(0.9 × N). ETA misses use only orders with a usable upper estimate."));
+  function render() {
+    const rows=Object.entries(data[daypart.value]).flatMap(([area,values])=>values.map((d,i)=>({area,d,eta:area==="West"&&i===0?null:55})));
+    const n=Number(limit.value);
+    const areaName=area=>area==="East"?t("东区","East"):t("西区","West");
+    table("results",t(["区域","已完成","平均分钟","P90 分钟","长单率","超预计上限"],["Area","Completed","Mean min","P90 min","Long-duration share","ETA miss rate"]),["East","West"].map(area=>{
+      const items=rows.filter(r=>r.area===area);
+      const values=items.map(r=>r.d).sort((a,b)=>a-b);
+      const eligible=items.filter(r=>r.eta!==null);
+      return [areaName(area),values.length,(values.reduce((a,b)=>a+b,0)/values.length).toFixed(1),values[Math.ceil(.9*values.length)-1],pct(countAbove(values,n),values.length),pct(eligible.filter(r=>r.d>r.eta).length,eligible.length)];
+    }));
+    table("fixture",t(["区域","订单","耗时（分钟）","预计上限（分钟）"],["Area","Order","Duration (min)","Upper ETA (min)"]),rows.map((r,i)=>[areaName(r.area),"D"+(i+1),r.d,r.eta??"—"]));
+    set("conclusion",t("长单率与超预计上限比例使用不同口径。样例未包含分段耗时，不能归责。","The long-duration and ETA miss rates have different denominators and definitions. The fixture lacks delivery-stage evidence for assigning responsibility."));
+  }
+  render();
+}
+function checks() {
+  const cases=[["normal",[40,61],1],["boundary",[40,60,61],1],["empty",[],0]];
+  const labels={normal:t("正常","Normal"),boundary:t("精确边界","Exact boundary"),empty:t("空输入","Empty input")};
+  const mode=control("implementation",t("选择实现","Implementation"),[["correct",t("正确：> 60","Correct: > 60")],["faulty",t("故障：≥ 60","Faulty: ≥ 60")]],()=>{set("conclusion","");byId("results").replaceChildren();});
+  const run=document.createElement("button");
+  run.type="button";run.textContent=t("运行验收","Run checks");
+  byId("controls").append(run);
+  set("rules",t("固定预期值来自手算。配送长尾 Demo 和此处正确实现共享同一个严格大于判断。切到故障版本可以验证边界样例能抓错。","Expected values are fixed by hand. The delivery demo and the correct implementation share the strict comparison. Switch to the faulty implementation to see the boundary case catch the defect."));
+  table("fixture",t(["样例","输入（分钟）","固定预期"],["Case","Input (min)","Fixed expected"]),cases.map(([id,x,y])=>[labels[id],JSON.stringify(x),y]));
+  run.addEventListener("click",()=>{
+    const results=cases.map(([id,input,expected])=>{
+      const actual=countAbove(input,60,mode.value==="faulty");
+      return {id,expected,actual,pass:actual===expected};
+    });
+    table("results",t(["样例","预期","实际","结果"],["Case","Expected","Actual","Result"]),results.map(r=>[labels[r.id],r.expected,r.actual,r.pass?t("通过","PASS"):t("失败","FAIL")]));
+    const passed=results.filter(r=>r.pass).length;
+    set("conclusion",t("通过 ","Passed ")+passed+"/"+results.length+t("。","."));
+  });
+  set("conclusion",t("选一个版本并点击运行。","Choose an implementation and run the checks."));
+}
+({retention,coupon,delivery,checks})[demo]();
+</script>
+</body></html>
