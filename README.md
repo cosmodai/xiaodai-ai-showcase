@@ -37,6 +37,12 @@ flowchart TD
 | [店铺装修诊断](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html) | 虚构店铺的改版前后与四项验收 | 中 / [EN](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html?lang=en) |
 | [数据导入质检](https://cosmodai.github.io/xiaodai-ai-showcase/import.html) | 重现保留旧值的问题，应用修正并回读校验 | 中 |
 | [营销活动情景模拟](https://cosmodai.github.io/xiaodai-ai-showcase/campaign.html) | 调整订单量和每单补贴，查看成本与贡献变化 | 中 |
+| [经营与利润异动诊断](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=contribution) | 从全市下钻到门店，核对订单量、每单收入、配送与补贴的贡献变化 | 中 / [EN](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=contribution&lang=en) |
+| [用户留存](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=retention) | 只比较观察完整的首单批次，区分整体复购与无券复购 | 中 / [EN](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=retention&lang=en) |
+| [红包核销](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=coupon) | 核对发券、核销、费用和用户真实下单间隔 | 中 / [EN](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=coupon&lang=en) |
+| [配送长尾](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=delivery) | 对比均值、P90、长单率和超过预计送达上限的比例 | 中 / [EN](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=delivery&lang=en) |
+| [竞对商圈与招商选品](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=sourcing) | 按商圈和品类对照虚构平台目录，确认分店对应和价格证据 | 中 / [EN](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=sourcing&lang=en) |
+| [已知答案验收](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=checks) | 运行同一组固定答案，看缺陷实现如何被抓住 | 中 / [EN](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=checks&lang=en) |
 
 ## 其他内容
 
@@ -46,7 +52,7 @@ flowchart TD
 | [回读核验专题](https://cosmodai.github.io/xiaodai-ai-showcase/#verify) | “保存 ≠ 生效、发送 ≠ 送达”的四个案例 |
 | [能力地图与案例](https://cosmodai.github.io/xiaodai-ai-showcase/#capabilities) | 16 个业务场景，各配一个合成数据案例 |
 | [视觉作品](https://cosmodai.github.io/xiaodai-ai-showcase/#creative) | 虚构品牌 Maple Wok 的菜品图、海报、项目封面与菜品图验收流程 |
-| [公开 Skills](skills/) | 五个可直接用于 Claude Code 的工作流，附可复算示例 |
+| [公开 Skills](skills/) | 11 个可直接用于 Claude Code 的工作流，每个都附可复算示例和对应演示 |
 | [工程复盘](docs/) | [路由必须走类型化参数](docs/01-routing-must-be-typed.md) · [假完成](docs/02-phantom-done.md) · [用事故数据修正熔断器](docs/03-circuit-breaker-from-incident-data.md)（另有[英文版](docs/en/)） |
 
 ## 本地运行
@@ -74,9 +80,15 @@ flowchart TD
 
 Running on a live business since May 27, 2026: 4,348 subagent dispatches, 21,857 scheduled job runs since Sep 28 (96.9% first-try success), and 25,247 outgoing sends checked by the completion gate since Sep 4, counted from its own ledgers.
 
-**Browse:** [English portfolio](https://cosmodai.github.io/xiaodai-ai-showcase/?lang=en) · [Execution trace replay](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html?lang=en) · [Funnel diagnostics](https://cosmodai.github.io/xiaodai-ai-showcase/funnel.html?lang=en) · [Storefront audit](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html?lang=en) · [Public skills](skills/) · [Engineering notes](docs/en/)
+**Browse:** [English portfolio](https://cosmodai.github.io/xiaodai-ai-showcase/?lang=en) · [Execution trace replay](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html?lang=en) · [Funnel diagnostics](https://cosmodai.github.io/xiaodai-ai-showcase/funnel.html?lang=en) · [Storefront audit](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html?lang=en) · [Operations lab: 6 demos](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=contribution&lang=en) · [Public skills](skills/) · [Engineering notes](docs/en/)
 
 All data, brands and examples are synthetic or fictional. No source code or real business data is included.
+
+## 授权 / License
+
+代码和 Skills 以 [MIT](LICENSE) 授权，可自由使用和修改。所有示例数据均为合成数据。
+
+Code and skills are released under the [MIT License](LICENSE). All example data is synthetic.
 
 ---
 
