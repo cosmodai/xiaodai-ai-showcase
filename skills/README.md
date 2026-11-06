@@ -1,8 +1,8 @@
 # 公开 Skills / Public Skills
 
-小戴在日常运营里使用的十一个工作流，去掉了真实数据和内部细节后公开。每个 Skill 都写明了步骤、验收条件和一个可以复算的示例。
+小戴在日常运营里使用的十五个工作流，去掉了真实数据和内部细节后公开。每个 Skill 都写明了步骤、验收条件和一个可以复算的示例。
 
-Eleven workflows Xiaodai uses in daily operations, published without real data or internal details. Each one states its steps, acceptance criteria and a worked example you can recompute.
+Fifteen workflows Xiaodai uses in daily operations, published without real data or internal details. Each one states its steps, acceptance criteria and a worked example you can recompute.
 
 | Skill | 用途 | Use |
 | --- | --- | --- |
@@ -17,6 +17,10 @@ Eleven workflows Xiaodai uses in daily operations, published without real data o
 | [known-answer-acceptance](known-answer-acceptance/SKILL.md) | 已知答案验收 | Run fixed fixtures against a candidate implementation |
 | [competitive-merchant-sourcing](competitive-merchant-sourcing/SKILL.md) | 竞对商圈与招商选品 | Competitive Merchant Sourcing |
 | [contribution-change-bridge](contribution-change-bridge/SKILL.md) | 经营与利润异动诊断 | Contribution Change Bridge |
+| [campaign-incrementality](campaign-incrementality/SKILL.md) | 活动净增量复盘 | Campaign Incrementality Review |
+| [storefront-menu-and-assets](storefront-menu-and-assets/SKILL.md) | 整店菜单与营销物料 | Whole-Store Menu and Assets |
+| [bd-visit-activation](bd-visit-activation/SKILL.md) | BD 拜访与签后动销 | BD Visits and Activation |
+| [dashboard-publication-verification](dashboard-publication-verification/SKILL.md) | 看板发布核验 | Dashboard Publication Verification |
 
 ## 怎么用 / How to use
 
@@ -48,3 +52,7 @@ You can also paste a `SKILL.md` into any assistant as a prompt.
 - [已知答案验收 / Run fixed fixtures against a candidate implementation](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=checks&lang=en)
 - [竞对商圈与招商选品 / Competitive Merchant Sourcing](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=sourcing&lang=en)
 - [经营与利润异动诊断 / Contribution Change Bridge](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=contribution&lang=en)
+- [活动净增量复盘 / Campaign Incrementality Review](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=incrementality&lang=en)
+- [整店菜单与营销物料 / Whole-Store Menu and Assets](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=menuPack&lang=en)
+- [BD 拜访与签后动销 / BD Visits and Activation](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=bdFunnel&lang=en)
+- [看板发布核验 / Dashboard Publication Verification](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=dashboard&lang=en)
