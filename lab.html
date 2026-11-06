@@ -44,6 +44,7 @@ const set = (id, value) => { byId(id).textContent = value; };
 const specs = {"retention": ["cohort-retention", "用户留存", "Cohort Retention", "只比较观察完整的首单批次，区分整体复购与无券复购。", "Compare mature first-order cohorts and distinguish repeat orders with and without a coupon."], "coupon": ["coupon-redemption", "红包核销", "Coupon Redemption", "核对发券、核销、费用和用户真实下单间隔。", "Reconcile issuance, redemption, funding and observed order gaps."], "delivery": ["delivery-tail-analysis", "配送长尾", "Delivery Tail Analysis", "对比均值、P90、长单率和超过预计送达上限的比例。", "Compare the mean, P90, long-duration share and missed delivery estimates."], "checks": ["known-answer-acceptance", "已知答案验收", "Known-Answer Acceptance", "运行同一组固定答案，看看有缺陷的实现如何被抓住。", "Run fixed expected answers against a correct or faulty implementation."]};
 Object.assign(specs,{"sourcing": ["competitive-merchant-sourcing", "竞对商圈与招商选品", "Competitive Merchant Sourcing", "按商圈和品类对照虚构平台目录，确认分店对应和价格证据。", "Compare fictional local catalogs and verify branch and pricing evidence."], "contribution": ["contribution-change-bridge", "经营与利润异动诊断", "Contribution Change Bridge", "从全市下钻到门店，核对订单量、每单收入、配送与补贴的贡献变化。", "Drill from market to store and reconcile the effects of order volume, revenue, delivery and subsidies."]});
 Object.assign(specs,{"incrementality": ["campaign-incrementality", "活动净增量复盘", "Campaign Incrementality Review", "按对照组调整前后变化，核算活动成本，并检查前期走势。", "Adjust for comparison-group movement, account for campaign cost, and check pre-period changes."], "menuPack": ["storefront-menu-and-assets", "整店菜单与营销物料", "Whole-Store Menu and Assets", "查看双语菜单、套餐与素材草案，发现商品图片错绑。", "Review a bilingual menu, combo components, and draft asset mappings."], "bdFunnel": ["bd-visit-activation", "BD 拜访与签后动销", "BD Visits and Activation", "核对拜访、签约、签后首单的分母，按窗口列出跟进动作。", "Check visit, signing and first-order denominators and review window-specific follow-ups."], "dashboard": ["dashboard-publication-verification", "看板发布核验", "Dashboard Publication Verification", "模拟刷新、发布与接收方回读，检查版本和数据日期。", "Simulate a refresh, publish and receiver readback with version and data-date checks."]});
+Object.assign(specs,{"reconcile": ["settlement-reconciliation", "账务结算对账", "Settlement Reconciliation", "把订单、退款、费用与结算行对起来，核查差额和待核凭证。", "Match orders, refunds, fees and settlement lines, then review differences and missing evidence."]});
 const requested = query.get("demo");
 const demo = Object.hasOwn(specs, requested) ? requested : "retention";
 const url = (key, english) => "?demo="+key+(english?"&lang=en":"");
@@ -378,7 +379,64 @@ function dashboard() {
   render(t("先刷新本地，再模拟发布和回读。","Refresh locally, then publish and read back."));
 }
 
-({retention,coupon,delivery,checks,sourcing,contribution,incrementality,menuPack,bdFunnel,dashboard})[demo]();
+function reconcile() {
+  const orders=[["A","O01",10000],["A","O02",8000],["A","O03",6000],["B","O04",5000]];
+  const refunds=[["A","R01","O02",2000,"REF-R01"]];
+  const fees=[["A","F01","O01",1000,"FEE-F01"],["A","F02","O02",800,null],["A","F03","O03",600,"FEE-F03"],["B","F04","O04",500,"FEE-F04"]];
+  const statements=[["A","S01","O01",9000],["A","S02","O02",5200],["A","S03","O03",5000],["B","S04","O04",2000],["B","S05","O04",2500],["B","S06","O99",500]];
+  const batch=control("settlement-batch",t("结算批次","Settlement batch"),[["A",t("A · 差额和缺凭证","A · Difference and missing receipt")],["B",t("B · 拆分与未匹配","B · Split and unmatched")]],render);
+  const scenario=control("settlement-scenario",t("对账样例","Reconciliation fixture"),[["original",t("原始结算单","Original statement")],["revised",t("A 批次补凭证及更正","Batch A evidence and amendment")]],render);
+  const pendingTitle=document.createElement("h2");
+  pendingTitle.textContent=t("待核凭证与差额","Open evidence and differences");
+  const pending=document.createElement("div");
+  pending.id="recon-pending";pending.className="table-wrap";
+  byId("results").after(pendingTitle,pending);
+  set("rules",t("样例均为 CAD、同一截止口径下的已入账记录。应结 = 订单金额 − 退款 − 费用；差额 = 结算单 − 应结。可按订单号复算，拆分结算行先合计。","All records are synthetic posted CAD entries under one cutoff convention. Expected = orders − refunds − fees. Difference = statement − expected. Sum split lines by order before comparison."));
+  const money=cents=>(cents<0?"−":"")+"CA$"+(Math.abs(cents)/100).toFixed(2);
+  const total=(rows,i)=>rows.reduce((sum,row)=>sum+row[i],0);
+  function render(){
+    scenario.disabled=batch.value==="B";
+    const inBatch=row=>row[0]===batch.value;
+    const revised=batch.value==="A"&&scenario.value==="revised";
+    const orderRows=orders.filter(inBatch);
+    const refundRows=refunds.filter(inBatch);
+    const feeRows=fees.filter(inBatch).map(row=>revised&&row[1]==="F02"?[...row.slice(0,4),"FEE-F02"]:row);
+    const lines=statements.filter(inBatch);
+    if(revised)lines.push(["A","S07","O03",400]);
+    const keys=[...new Set([...orderRows.map(row=>row[1]),...lines.map(row=>row[2])])];
+    const issues=[];
+    const rows=keys.map(key=>{
+      const order=orderRows.find(row=>row[1]===key);
+      const rr=refundRows.filter(row=>row[2]===key);
+      const ff=feeRows.filter(row=>row[2]===key);
+      const ss=lines.filter(row=>row[2]===key);
+      const gross=order?.[2]??0, refund=total(rr,3), fee=total(ff,3);
+      const expected=gross-refund-fee, observed=total(ss,3);
+      if(!order){
+        issues.push([key,t("结算行无对应订单","Unmatched statement line"),ss.map(r=>r[1]).join(", "),t("补订单或调整凭证","Order or adjustment evidence")]);
+      }else if(expected!==observed){
+        issues.push([key,t("金额不符","Amount mismatch"),ss.map(r=>r[1]).join(", ")||"—",t("结算明细或更正单","Statement detail or amendment")]);
+      }
+      for(const item of [...rr,...ff].filter(row=>!row[4])){
+        issues.push([key,t("凭证缺失","Missing evidence"),item[1],t("费用或退款凭证","Fee or refund evidence")]);
+      }
+      return [key,gross,refund,fee,expected,observed,observed-expected];
+    });
+    const totals=Array.from({length:6},(_,i)=>total(rows,i+1));
+    table("results",t(["订单号","订单金额","退款","费用","应结","结算单","差额"],["Order","Gross","Refunds","Fees","Expected","Statement","Difference"]),[...rows,[t("批次合计","Batch total"),...totals]].map(([key,...values])=>[key,...values.map((value,i)=>i<5&&!orderRows.some(row=>row[1]===key)&&key!==t("批次合计","Batch total")?"—":money(value))]));
+    table("recon-pending",t(["订单号","状态","相关记录","待核凭证"],["Order","Status","Record IDs","Evidence needed"]),issues.length?issues:[["—",t("无未结项","No open items"),"—","—"]]);
+    table("fixture",t(["类型","记录编号","订单号","金额","凭证"],["Type","Record ID","Order","Amount","Evidence"]),[
+      ...orderRows.map(([,id,value])=>[t("订单","Order"),id,id,money(value),"ORDER-"+id]),
+      ...refundRows.map(([,id,key,value,receipt])=>[t("退款","Refund"),id,key,money(value),receipt??"—"]),
+      ...feeRows.map(([,id,key,value,receipt])=>[t("费用","Fee"),id,key,money(value),receipt??"—"]),
+      ...lines.map(([,id,key,value])=>[t("结算行","Statement line"),id,key,money(value),id==="S07"?"AMEND-S07":"STMT-"+batch.value])
+    ]);
+    set("conclusion",t("批次差额 ","Batch difference ")+money(totals[5])+t("，待核事项 "," · Open items ")+issues.length+".");
+  }
+  render();
+}
+
+({retention,coupon,delivery,checks,sourcing,contribution,incrementality,menuPack,bdFunnel,dashboard,reconcile})[demo]();
 </script>
 </body>
 </html>
