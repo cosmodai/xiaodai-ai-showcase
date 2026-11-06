@@ -84,3 +84,19 @@ select { font: inherit; padding: .6rem 2.2rem .6rem .65rem; border-radius: .45re
 select:focus-visible, input:focus-visible, button:focus-visible { outline: 2px solid #155647; outline-offset: 2px; }
 button[aria-pressed="false"] { background: #fff; color: #155647; border-color: #155647; }
 button[aria-pressed="true"] { background: #155647; color: #fff; border-color: #155647; }
+/* 运行数据 */
+.stats { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr)); margin-block: 1.2rem; }
+.feature .stat { background: #f4f7f3; margin: 0; padding: 1rem; }
+.stat-num { font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 750; color: #155647; margin: 0; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.stat-label { font-weight: 650; margin: .35rem 0 .2rem; line-height: 1.4; }
+.stat-sub { font-size: .85rem; color: #426b5f; margin: 0; line-height: 1.5; }
+.small { font-size: .9rem; }
+/* 时间线 */
+.timeline { list-style: none; margin: 1.2rem 0 0; padding: 0 0 0 1.4rem; border-left: 2px solid #d3ded7; }
+.timeline li { position: relative; padding-bottom: 1.1rem; }
+.timeline li::before { content: ""; position: absolute; left: calc(-1.4rem - 7px); top: .35rem; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid #155647; }
+.timeline li:last-child { padding-bottom: 0; }
+.timeline .tl-date { margin: 0; font-size: .85rem; font-weight: 700; color: #426b5f; letter-spacing: .03em; }
+.timeline h3 { margin: .15rem 0 .25rem; font-size: 1.02rem; }
+.timeline li > p:last-child { margin: 0; }
+.about { border-color: #155647; }

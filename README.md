@@ -6,6 +6,10 @@
 
 **在线浏览：[中文](https://cosmodai.github.io/xiaodai-ai-showcase/) · [English](https://cosmodai.github.io/xiaodai-ai-showcase/?lang=en)**
 
+## 运行数据
+
+统计自小戴自己的运行账本，截至 2026-11-06：自 5 月 27 日起连续运行 163 天，派单给子 agent 4,348 次；9 月 28 日起定时任务运行 21,857 次（107 个任务，96.9% 一次成功）；9 月 4 日起 25,247 次对外发送经过完成闸。详见[首页运行数据与时间线](https://cosmodai.github.io/xiaodai-ai-showcase/#numbers)。
+
 ## 架构一览
 
 ```mermaid
@@ -67,6 +71,8 @@ flowchart TD
 - A coordinator routes work to fixed-role subagents through a dispatch tool whose route is a typed enum, so hooks can enforce it. Free-text routing never reaches a hook.
 - A governance layer (PreToolUse / PostToolUse / SubagentStop hooks, a guardian agent, a manager agent, hysteresis circuit breakers) checks every tool call.
 - A subagent saying "done" is only a claim. Each task type has machine-checkable completion assertions that read back the real-world result; external messages go through an outbox and close only on a matching receipt.
+
+Running on a live business since May 27, 2026: 4,348 subagent dispatches, 21,857 scheduled job runs since Sep 28 (96.9% first-try success), and 25,247 outgoing sends checked by the completion gate since Sep 4, counted from its own ledgers.
 
 **Browse:** [English portfolio](https://cosmodai.github.io/xiaodai-ai-showcase/?lang=en) · [Execution trace replay](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html?lang=en) · [Funnel diagnostics](https://cosmodai.github.io/xiaodai-ai-showcase/funnel.html?lang=en) · [Storefront audit](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html?lang=en) · [Public skills](skills/) · [Engineering notes](docs/en/)
 
