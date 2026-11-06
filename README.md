@@ -77,3 +77,7 @@ Running on a live business since May 27, 2026: 4,348 subagent dispatches, 21,857
 **Browse:** [English portfolio](https://cosmodai.github.io/xiaodai-ai-showcase/?lang=en) · [Execution trace replay](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html?lang=en) · [Funnel diagnostics](https://cosmodai.github.io/xiaodai-ai-showcase/funnel.html?lang=en) · [Storefront audit](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html?lang=en) · [Public skills](skills/) · [Engineering notes](docs/en/)
 
 All data, brands and examples are synthetic or fictional. No source code or real business data is included.
+
+---
+
+作者 / Author: Cosmo · [LinkedIn](https://www.linkedin.com/in/weiye-dai-a31647a3/) · [GitHub](https://github.com/cosmodai)
