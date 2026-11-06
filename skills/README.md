@@ -1,8 +1,8 @@
 # 公开 Skills / Public Skills
 
-小戴在日常运营里使用的九个工作流，去掉了真实数据和内部细节后公开。每个 Skill 都写明了步骤、验收条件和一个可以复算的示例。
+小戴在日常运营里使用的十一个工作流，去掉了真实数据和内部细节后公开。每个 Skill 都写明了步骤、验收条件和一个可以复算的示例。
 
-Nine workflows Xiaodai uses in daily operations, published without real data or internal details. Each one states its steps, acceptance criteria and a worked example you can recompute.
+Eleven workflows Xiaodai uses in daily operations, published without real data or internal details. Each one states its steps, acceptance criteria and a worked example you can recompute.
 
 | Skill | 用途 | Use |
 | --- | --- | --- |
@@ -15,6 +15,8 @@ Nine workflows Xiaodai uses in daily operations, published without real data or 
 | [coupon-redemption](coupon-redemption/SKILL.md) | 红包核销 | Reconcile redemption and observed order gaps |
 | [delivery-tail-analysis](delivery-tail-analysis/SKILL.md) | 配送长尾 | Compare P90 and ETA misses |
 | [known-answer-acceptance](known-answer-acceptance/SKILL.md) | 已知答案验收 | Run fixed fixtures against a candidate implementation |
+| [competitive-merchant-sourcing](competitive-merchant-sourcing/SKILL.md) | 竞对商圈与招商选品 | Competitive Merchant Sourcing |
+| [contribution-change-bridge](contribution-change-bridge/SKILL.md) | 经营与利润异动诊断 | Contribution Change Bridge |
 
 ## 怎么用 / How to use
 
@@ -44,3 +46,5 @@ You can also paste a `SKILL.md` into any assistant as a prompt.
 - [红包核销 / Reconcile redemption and observed order gaps](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=coupon&lang=en)
 - [配送长尾 / Compare P90 and ETA misses](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=delivery&lang=en)
 - [已知答案验收 / Run fixed fixtures against a candidate implementation](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=checks&lang=en)
+- [竞对商圈与招商选品 / Competitive Merchant Sourcing](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=sourcing&lang=en)
+- [经营与利润异动诊断 / Contribution Change Bridge](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=contribution&lang=en)
