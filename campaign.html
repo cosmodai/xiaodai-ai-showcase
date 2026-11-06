@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hans">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>营销活动情景模拟 · 小戴 AI</title>
+<link rel="stylesheet" href="style.css">
+<nav><a href="index.html">← 小戴 AI 作品集</a></nav>
+<main>
+<header>
+<p class="kicker">02 / 营销决策</p>
+<h1>营销活动情景模拟</h1>
+<p>模拟基准为 100 单，每单补贴 CA$2.00，补贴前每单贡献 CA$6.00。调整下方假设，看看成本和贡献怎么变。</p>
+</header>
+<section>
+<h2>输入情景</h2>
+<form id="scenario">
+<div class="grid">
+<label>订单量（单）<input id="orders" type="number" value="100" min="0" max="1000000" step="1" required></label>
+<label>每单补贴（CAD）<input id="subsidy" type="number" value="2.00" min="0" max="1000" step="0.01" required></label>
+</div>
+</form>
+<p id="error" hidden>请输入有效订单量和补贴，补贴最多保留两位小数。</p>
+</section>
+<div id="results" class="grid" aria-live="polite">
+<article><h2>补贴成本</h2><output id="cost"></output><p id="cost-delta"></p></article>
+<article><h2>示例活动贡献</h2><output id="contribution"></output><p id="contribution-delta"></p></article>
+</div>
+<section>
+<h2>计算口径</h2>
+<p>补贴成本 = 订单量 × 每单补贴。示例活动贡献 = 订单量 × 补贴前每单贡献 − 补贴成本。</p>
+<p>订单量由使用者设定。示例贡献使用公开演示口径。</p>
+</section>
+</main>
+<script src="campaign.js" defer></script>
+</html>

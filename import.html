@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hans">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据导入质检 · 小戴 AI</title>
+<link rel="stylesheet" href="style.css">
+<nav><a href="index.html">← 小戴 AI 作品集</a></nav>
+<main>
+<header>
+<p class="kicker">01 / 数据质量</p>
+<h1>数据导入质检</h1>
+<p>上游更正了一条历史费用。体验导入时保留旧记录会发生什么，再按键更新并回读验证。</p>
+</header>
+<section>
+<h2>同一批修正数据，两种处理方式</h2>
+<p>每行以区域与日期定位。金额单位为 CAD。演示中的数据存放在当前浏览器页面内。</p>
+<button id="skip">模拟保留旧记录</button>
+<button id="apply" disabled>应用修正并回读</button>
+<button id="reset">重置演示</button>
+<p id="status" role="status"></p>
+<table>
+<thead><tr><th scope="col">区域 / 日期</th><th scope="col">导入前</th><th scope="col">上游值</th><th scope="col">回读值</th><th scope="col">校验</th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+</section>
+</main>
+<script src="import.js" defer></script>
+</html>
