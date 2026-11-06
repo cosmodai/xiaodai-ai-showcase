@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="zh-Hans"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="zh-Hans">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>店铺装修诊断 / Storefront Audit</title>
 <meta name="description" content="用虚构店铺 Maple Wok 演示首屏改版前后与四项验收检查。Storefront audit demo.">
 <meta property="og:type" content="website">
@@ -15,7 +16,9 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css?v=20261106-4">
 <style>.demo-nav{display:flex;gap:1rem;flex-wrap:wrap}.demo-table{overflow:auto}.demo-table td,.demo-table th{min-width:6.5rem}.drop{color:#8a2c1c;font-weight:700}.store-view img{width:min(100%,20rem);height:auto;border-radius:.6rem}.store-view [data-crop]{aspect-ratio:2.6;object-fit:cover;object-position:top}.store-view ul{padding-left:1.25rem;line-height:1.6}.demo-nav a[aria-current]{text-decoration:none;color:#132624}</style>
-<body><nav class="demo-nav"><a id="home"></a><a id="language"></a></nav><main>
+</head>
+<body>
+<nav class="demo-nav"><a id="home"></a><a id="language"></a></nav><main>
 <header><p class="kicker">XIAODAI AI · FICTIONAL STOREFRONT</p><h1 id="title"></h1><p id="intro"></p></header>
 <section><h2 id="compare"></h2><div class="controls"><button id="before" aria-pressed="true"></button><button id="after" aria-pressed="false"></button></div>
 <div class="grid"><article class="store-view"><p class="kicker">MAPLE WOK</p><h3 id="store-title"></h3><img id="hero" width="480" height="480" src="assets/dish-photo.jpg" alt=""><ul id="menu"></ul><p id="offer"></p></article>
@@ -63,4 +66,6 @@ function show(after) {
 byId("before").addEventListener("click",()=>show(false));
 byId("after").addEventListener("click",()=>show(true));
 show(false);
-</script></body></html>
+</script>
+</body>
+</html>
