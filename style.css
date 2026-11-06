@@ -100,3 +100,18 @@ button[aria-pressed="true"] { background: #155647; color: #fff; border-color: #1
 .timeline h3 { margin: .15rem 0 .25rem; font-size: 1.02rem; }
 .timeline li > p:last-child { margin: 0; }
 .about { border-color: #155647; }
+/* 一天 */
+.day { margin-top: 1.2rem; }
+.feature .slot { background: #f4f7f3; margin: 0; }
+.slot-time { margin: 0; font-size: .85rem; font-weight: 700; color: #426b5f; letter-spacing: .04em; }
+.slot h3 { margin: .2rem 0 .6rem; }
+.slot ul { list-style: none; margin: 0; padding: 0; }
+.slot li { display: grid; grid-template-columns: 4.6rem 1fr; gap: .4rem; padding: .3rem 0; border-top: 1px solid #d3ded7; line-height: 1.45; font-size: .95rem; }
+.clock { font-variant-numeric: tabular-nums; color: #155647; font-weight: 650; }
+/* 自学习 */
+.steps-flow { list-style: none; counter-reset: f; padding: 0; margin: 1.2rem 0; display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); }
+.steps-flow li { counter-increment: f; background: #f4f7f3; border: 1px solid #d3ded7; border-radius: .8rem; padding: 1rem; position: relative; }
+.steps-flow li::before { content: counter(f); display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: #155647; color: #fff; font-weight: 700; font-size: .85rem; }
+.steps-flow h3 { margin: .5rem 0 .3rem; font-size: 1rem; }
+.steps-flow p { margin: 0; font-size: .92rem; }
+.grid.day { grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); }
