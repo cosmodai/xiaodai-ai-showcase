@@ -1,5 +1,7 @@
 # 复盘 02：假完成，以及为什么要让机器来判定完成
 
+*[English](en/02-phantom-done.md)*
+
 ## 现象
 
 在小戴的失败模式里，“假完成”排第二：agent 宣布任务完成，但实际效果没有发生。典型例子：
@@ -29,4 +31,4 @@
 
 ---
 
-可交互演示：[执行轨迹回放](../trace.html)，关掉“完成断言”开关对比结果。
+可交互演示：[执行轨迹回放](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html)，关掉“完成断言”开关对比结果。

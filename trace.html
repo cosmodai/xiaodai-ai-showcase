@@ -3,22 +3,34 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>执行轨迹回放 · 小戴 AI</title>
-<link rel="stylesheet" href="style.css">
-<nav><a href="index.html">← 小戴 AI 作品集</a></nav>
+<meta name="description" content="逐步回放一次多 agent 定时任务：派单、hook 拦截、完成断言回读、回执归档，可对比关闭断言时的“假完成”。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="小戴 AI · Xiaodai AI">
+<meta property="og:title" content="执行轨迹回放 · 小戴 AI">
+<meta property="og:description" content="逐步回放一次多 agent 定时任务：派单、hook 拦截、完成断言回读、回执归档，可对比关闭断言时的“假完成”。">
+<meta property="og:url" content="https://cosmodai.github.io/xiaodai-ai-showcase/trace.html">
+<meta property="og:image" content="https://cosmodai.github.io/xiaodai-ai-showcase/assets/project-cover.jpg">
+<meta property="og:image:width" content="900">
+<meta property="og:image:height" content="506">
+<meta property="og:image:alt" content="小戴 AI 项目封面：多 agent 运营系统作品集">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css?v=20261106-3">
+<nav class="demo-nav"><a id="home" href="./" data-en="← Xiaodai AI portfolio" data-en-href="./?lang=en">← 小戴 AI 作品集</a> <a id="language" href="?lang=en" lang="en" data-en="中文" data-en-href="?">English</a></nav>
 <main>
 <header>
-<p class="kicker">03 / 多 agent 编排</p>
-<h1>一次任务的执行轨迹</h1>
-<p>用合成记录回放小戴处理一个定时任务的全过程：主脑派单、hook 拦截、子 agent 声称完成、完成断言回读，直到收到回执。逐步点击，看每一步留下的证据。</p>
+<p class="kicker" data-en="03 / Multi-agent orchestration">03 / 多 agent 编排</p>
+<h1 data-en="One task, step by step">一次任务的执行轨迹</h1>
+<p data-en="A replay of how Xiaodai handles one scheduled task, using synthetic records: the coordinator routes it, a hook blocks an unsafe call, a subagent claims it is done, a completion assertion reads back the result, and the task closes only on a receipt. Step through and inspect the evidence each step leaves.">用合成记录回放小戴处理一个定时任务的全过程：主脑派单、hook 拦截、子 agent 声称完成、完成断言回读，直到收到回执。逐步点击，看每一步留下的证据。</p>
 </header>
 <section>
-<h2>任务</h2>
-<p>每周一早上自动生成「北区周报」，数据截至上周日，发到运营群。</p>
-<label class="toggle"><input type="checkbox" id="assert" checked> 启用完成断言（关掉试试会发生什么）</label>
+<h2 data-en="The task">任务</h2>
+<p data-en="Every Monday morning, build the North region weekly report with data through last Sunday and post it to the ops group.">每周一早上自动生成「北区周报」，数据截至上周日，发到运营群。</p>
+<label class="toggle"><input type="checkbox" id="assert" checked> <span data-en="Completion assertions on (turn off to see what happens)">启用完成断言（关掉试试会发生什么）</span></label>
 <div class="controls">
-<button id="next" type="button">下一步</button>
+<button id="next" type="button" data-en="Next step">下一步</button>
 <button id="play" type="button">自动播放</button>
-<button id="reset" type="button">重置</button>
+<button id="reset" type="button" data-en="Reset">重置</button>
 </div>
 </section>
 <div class="trace">
@@ -30,11 +42,11 @@
 </div>
 <section id="outcome" hidden></section>
 <section>
-<h2>这段回放说明了什么</h2>
-<p>第 2 步：路由写成一句话是无效的，hook 也看不到。只有调用调度工具、带上枚举参数，派单才算发生。</p>
-<p>第 4 步：外发动作只能经过发件箱，子 agent 直接发消息会在调用前被拦下。</p>
-<p>第 6 步：子 agent 说“完成”，但回读发现数据日期是上上周。断言让这次“完成”变成退回。</p>
-<p>所有记录均为合成示例，结构参照真实运行方式简化。</p>
+<h2 data-en="What this replay shows">这段回放说明了什么</h2>
+<p data-en="Step 2: routing written as a sentence does nothing, and no hook can see it. Work is only dispatched when the dispatch tool is called with an enum argument.">第 2 步：路由写成一句话是无效的，hook 也看不到。只有调用调度工具、带上枚举参数，派单才算发生。</p>
+<p data-en="Step 4: only the outbox may send external messages. A subagent calling the send tool directly is blocked before the call runs.">第 4 步：外发动作只能经过发件箱，子 agent 直接发消息会在调用前被拦下。</p>
+<p data-en="Step 6: the subagent says “done”, but the read-back finds data from the week before last. The assertion turns that “done” into a rejection.">第 6 步：子 agent 说“完成”，但回读发现数据日期是上上周。断言让这次“完成”变成退回。</p>
+<p data-en="All records are synthetic, simplified from how the real system runs.">所有记录均为合成示例，结构参照真实运行方式简化。</p>
 </section>
 </main>
 <script src="trace.js" defer></script>

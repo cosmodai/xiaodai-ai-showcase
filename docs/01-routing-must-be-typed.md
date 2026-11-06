@@ -1,5 +1,7 @@
 # 复盘 01：路由信号必须走类型化参数
 
+*[English](en/01-routing-must-be-typed.md)*
+
 ## 现象
 
 主脑需要把任务交给某个子 agent。早期的做法是让它在回复里写出路由标记，再由程序解析。运行一段时间后出现两个问题：
@@ -31,4 +33,4 @@
 
 ---
 
-可交互演示：[执行轨迹回放](../trace.html) 第 2、3 步。
+可交互演示：[执行轨迹回放](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html) 第 2、3 步。

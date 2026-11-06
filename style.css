@@ -66,3 +66,21 @@ figcaption { font-size: .9rem; color: #426b5f; }
 .arch-scroll { overflow-x: auto; }
 .arch-scroll svg { min-width: 640px; }
 .step.risk .step-btn { border-left-color: #b7791f; } .step.risk .badge { background: #fbefd9; color: #7a4e0e; }
+/* 案例折叠 */
+details.case { background: #fff; border: 1px solid #d3ded7; border-radius: .9rem; margin-bottom: .6rem; padding: 0 1.2rem; }
+details.case[open] { padding-bottom: 1rem; }
+details.case summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .8rem; padding-block: 1rem; }
+details.case summary::-webkit-details-marker { display: none; }
+details.case summary::after { content: "+"; margin-left: auto; font-weight: 700; color: #426b5f; font-size: 1.2rem; }
+details.case[open] summary::after { content: "−"; }
+details.case summary .kicker { margin: 0; font-size: .85rem; }
+details.case .case-title { font-weight: 700; font-size: 1.05rem; }
+details.case summary:focus-visible { outline: 2px solid #155647; outline-offset: 2px; border-radius: .4rem; }
+.case-tag { margin: 0 0 .4rem; font-size: .9rem; }
+.link-btn { background: none; border: none; color: #155647; font-weight: 650; text-decoration: underline; text-underline-offset: .2em; padding: 0 .4rem; margin: 0; }
+/* 通用控件 */
+.demo-nav { display: flex; gap: 1rem; flex-wrap: wrap; }
+select { font: inherit; padding: .6rem 2.2rem .6rem .65rem; border-radius: .45rem; border: 1px solid #839a90; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23155647' stroke-width='2'/%3E%3C/svg%3E") no-repeat right .8rem center / .7rem; color: #132624; width: 100%; min-width: 0; appearance: none; -webkit-appearance: none; }
+select:focus-visible, input:focus-visible, button:focus-visible { outline: 2px solid #155647; outline-offset: 2px; }
+button[aria-pressed="false"] { background: #fff; color: #155647; border-color: #155647; }
+button[aria-pressed="true"] { background: #155647; color: #fff; border-color: #155647; }

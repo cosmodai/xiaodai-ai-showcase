@@ -1,5 +1,7 @@
 # 复盘 03：用事故数据修正熔断器设计
 
+*[English](en/03-circuit-breaker-from-incident-data.md)*
+
 ## 背景
 
 小戴能修改自己的部分组件。为了防止它在状态不好时把自己改坏，我们给“高风险改动”加了熔断器，最初有两个触发条件：
@@ -29,4 +31,4 @@
 
 ---
 
-返回 [作品集首页](../index.html)
+返回 [作品集首页](https://cosmodai.github.io/xiaodai-ai-showcase/)
