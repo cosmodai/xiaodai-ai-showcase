@@ -43,6 +43,7 @@ const byId = id => document.getElementById(id);
 const set = (id, value) => { byId(id).textContent = value; };
 const specs = {"retention": ["cohort-retention", "用户留存", "Cohort Retention", "只比较观察完整的首单批次，区分整体复购与无券复购。", "Compare mature first-order cohorts and distinguish repeat orders with and without a coupon."], "coupon": ["coupon-redemption", "红包核销", "Coupon Redemption", "核对发券、核销、费用和用户真实下单间隔。", "Reconcile issuance, redemption, funding and observed order gaps."], "delivery": ["delivery-tail-analysis", "配送长尾", "Delivery Tail Analysis", "对比均值、P90、长单率和超过预计送达上限的比例。", "Compare the mean, P90, long-duration share and missed delivery estimates."], "checks": ["known-answer-acceptance", "已知答案验收", "Known-Answer Acceptance", "运行同一组固定答案，看看有缺陷的实现如何被抓住。", "Run fixed expected answers against a correct or faulty implementation."]};
 Object.assign(specs,{"sourcing": ["competitive-merchant-sourcing", "竞对商圈与招商选品", "Competitive Merchant Sourcing", "按商圈和品类对照虚构平台目录，确认分店对应和价格证据。", "Compare fictional local catalogs and verify branch and pricing evidence."], "contribution": ["contribution-change-bridge", "经营与利润异动诊断", "Contribution Change Bridge", "从全市下钻到门店，核对订单量、每单收入、配送与补贴的贡献变化。", "Drill from market to store and reconcile the effects of order volume, revenue, delivery and subsidies."]});
+Object.assign(specs,{"incrementality": ["campaign-incrementality", "活动净增量复盘", "Campaign Incrementality Review", "按对照组调整前后变化，核算活动成本，并检查前期走势。", "Adjust for comparison-group movement, account for campaign cost, and check pre-period changes."], "menuPack": ["storefront-menu-and-assets", "整店菜单与营销物料", "Whole-Store Menu and Assets", "查看双语菜单、套餐与素材草案，发现商品图片错绑。", "Review a bilingual menu, combo components, and draft asset mappings."], "bdFunnel": ["bd-visit-activation", "BD 拜访与签后动销", "BD Visits and Activation", "核对拜访、签约、签后首单的分母，按窗口列出跟进动作。", "Check visit, signing and first-order denominators and review window-specific follow-ups."], "dashboard": ["dashboard-publication-verification", "看板发布核验", "Dashboard Publication Verification", "模拟刷新、发布与接收方回读，检查版本和数据日期。", "Simulate a refresh, publish and receiver readback with version and data-date checks."]});
 const requested = query.get("demo");
 const demo = Object.hasOwn(specs, requested) ? requested : "retention";
 const url = (key, english) => "?demo="+key+(english?"&lang=en":"");
@@ -271,7 +272,113 @@ function contribution() {
   refresh();
 }
 
-({retention,coupon,delivery,checks,sourcing,contribution})[demo]();
+function incrementality() {
+  const presets = {
+    aligned: [[90,100,130],[90,100,110], true],
+    drift: [[75,100,130],[90,100,110], false],
+  };
+  const scenario = control("lift-scenario",t("对照样例","Comparison fixture"),[["aligned",t("前期变化一致","Aligned pre-period changes")],["drift",t("前期趋势不同","Different pre-period changes")]],render);
+  const spend = control("lift-cost",t("7 天活动成本","7-day campaign cost"),[[350,"CA$350"],[700,"CA$700"]],render);
+  set("rules",t("三段各 7 天，活动从第三段开始。数字为日均有效订单。估算增量 = 活动组前后差 − 参考组前后差；乘 7 得期间订单估算。每笔增量订单示例贡献 CA$4，未扣活动成本。","Each window is seven days and the campaign starts in the third. Counts are daily averages. Subtract the comparison group's change from the campaign group's change, then multiply by seven. Illustrative contribution is CA$4 per incremental order before campaign cost."));
+  function render(){
+    const [a,b,aligned]=presets[scenario.value];
+    const lift=a[2]-a[1]-(b[2]-b[1]);
+    table("fixture",t(["组别","较早基线","紧邻基线","活动期"],["Group","Earlier baseline","Immediate baseline","Campaign period"]),[[t("活动组","Campaign"),...a],[t("参考组","Comparison"),...b]]);
+    table("results",t(["指标","值"],["Metric","Value"]),[
+      [t("两组基线变化","Pre-period changes"),(a[1]-a[0])+" / "+(b[1]-b[0])],
+      [t("对照调整后估算／日","Adjusted estimate per day"),aligned?lift:"—"],
+      [t("7 天估算订单增量","Estimated incremental orders in 7 days"),aligned?lift*7:"—"],
+      [t("扣成本后示例贡献","Illustrative contribution after cost"),aligned?new Intl.NumberFormat("en-CA",{style:"currency",currency:"CAD",currencyDisplay:"code"}).format(lift*7*4-Number(spend.value)):"—"]
+    ]);
+    set("conclusion",aligned?t("前期变化一致仅通过此样例的初筛。结果是描述性估算；样例没有逐日波动数据，未估计置信区间。","Matching pre-period changes pass this fixture's initial screen. The estimate is descriptive. The fixture lacks daily variation data for a confidence interval."):t("两组前期走势不一致，暂停净增量估算。","Pre-period changes differ. Hold the incrementality estimate."));
+  }
+  render();
+}
+function menuPack() {
+  const source=[
+    ["M01","招牌碗饭","Signature bowls","枫糖辣鸡饭","Maple Chili Chicken Bowl","650 g","assets/dish-artwork.jpg"],
+    ["M02","配菜","Sides","爽脆黄瓜","Cucumber Salad","180 g",null],
+    ["M03","饮品","Drinks","乌龙茶","Oolong Tea","350 mL",null],
+    ["M04","套餐","Combo","辣鸡饭乌龙茶套餐","Chicken Bowl and Oolong Combo","M01 + M03",null]
+  ];
+  const draft=control("menu-scenario",t("素材映射草案","Asset mapping draft"),[["correct",t("正确对应","Correct mapping")],["mismatch",t("模拟错绑","Simulated mismatch")]],render);
+  const item=control("menu-item",t("预览商品","Preview item"),source.map(r=>[r[0],t(r[3],r[4])]),render);
+  const preview=document.createElement("div");
+  byId("results").after(preview);
+  const assetIndex = [
+    ["assets/dish-artwork.jpg",t("菜品图","Menu artwork"),"M01"],
+    ["assets/campaign-poster.jpg",t("活动海报","Campaign poster"),"M04"],
+    ["assets/project-cover.jpg",t("展示封面","Project cover"),null]
+  ];
+  set("rules",t("虚构菜单已录入分类、双语名、规格和套餐组成。素材清单声明适用对象，发布前逐项核对。","The fictional menu includes categories, bilingual names, variants and combo components. Check each placement against the asset's declared target."));
+  function render(){
+    const selected=source.find(row=>row[0]===item.value);
+    const placements = [[draft.value==="mismatch"?"M02":"M01",assetIndex[0]],["M04",assetIndex[1]],[null,assetIndex[2]]];
+    const mismatches=placements.filter(([id,asset])=>id!==asset[2]).length;
+    table("fixture",t(["编号","分类","中文名","英文名","规格／组成"],["SKU","Category","Chinese name","English name","Variant / components"]),source.map(([id,cn,en,zh,english,size])=>[id,t(cn,en),zh,english,size]));
+    table("results",t(["素材","声明对象","草案对象","核对"],["Asset","Declared target","Draft target","Check"]),placements.map(([id,asset])=>[asset[1],asset[2]??t("作品级","Portfolio"),id??t("作品级","Portfolio"),id===asset[2]?t("通过","Pass"):t("错绑","Mismatch")]));
+    const text=document.createElement("p");
+    text.textContent=selected[0]+" · "+t(selected[3],selected[4])+" · "+selected[5];
+    preview.replaceChildren(text);
+    for(const [id,asset] of placements.filter(([id])=>id===selected[0]||id===null)){
+      const image=document.createElement("img");
+      image.src=asset[0];image.alt=asset[1];image.style.cssText="width:min(100%,17rem);height:auto;margin-right:1rem;border-radius:.5rem";
+      preview.append(image);
+    }
+    set("conclusion",mismatches?t("发现 1 处素材错绑，草案待修正。","One asset mismatch. Correct the draft before publishing."):t("3 项素材映射通过。此处为整店草案预览。","Three asset placements pass. This is a storefront draft preview."));
+  }
+  render();
+}
+function bdFunnel() {
+  // ID, market, eligible visit, days observed since signing (null if unsigned), first valid order day.
+  const roster=[["N01","North",true,25,4],["N02","North",true,20,15],["N03","North",true,5,2],["N04","North",true,null,null],["N05","North",false,null,null],["S01","South",true,20,7],["S02","South",true,18,null],["S03","South",true,null,null]];
+  const area=control("bd-area",t("区域","Area"),[["all",t("全部","All")],["North",t("北区","North")],["South",t("南区","South")]],render);
+  const window=control("bd-window",t("签后观察窗口","Post-signing window"),[[14,t("14 天","14 days")],[7,t("7 天","7 days")]],render);
+  set("rules",t("模拟同一批商家。拜访覆盖 = 有效拜访商家／名单；签约率 = 签约／有效拜访商家；签后动销 = 窗口内首笔有效单／完整观察的签约商家。成熟期不足单列。","Follow one fictional merchant cohort. Coverage uses the roster denominator, signing uses visited merchants, and activation uses fully observed signings with a first valid order in the window. Immature signings are reported separately."));
+  function render(){
+    const rows=roster.filter(row=>area.value==="all"||row[1]===area.value);
+    const visited=rows.filter(row=>row[2]);
+    const signed=visited.filter(row=>row[3]!==null);
+    const days=Number(window.value);
+    const mature=signed.filter(row=>row[3]>=days);
+    const active=mature.filter(row=>row[4]!==null&&row[4]<=days);
+    table("results",t(["阶段","结果"],["Stage","Result"]),[[t("有效拜访覆盖","Eligible visit coverage"),pct(visited.length,rows.length)],[t("拜访后签约","Visit-to-signing"),pct(signed.length,visited.length)],[t("成熟签约商家动销","Activation among mature signings"),pct(active.length,mature.length)],[t("尚未成熟","Immature signings"),signed.length-mature.length]]);
+    table("fixture",t(["商家","区域","有效拜访","签后已观察天数","首单第几天","跟进动作"],["Merchant","Area","Eligible visit","Observed days after signing","First order day","Follow-up"]),rows.map(([id,market,visit,observed,first])=>[id,market==="North"?t("北区","North"):t("南区","South"),visit?t("是","Yes"):t("否","No"),observed??"—",first??"—",!visit?t("安排拜访","Schedule a visit"):observed===null?t("跟进签约","Follow up signing"):observed<days?t("等待窗口成熟","Wait for maturity"):first===null||first>days?t("复查首单卡点","Review first-order barriers"):t("窗口内已动销","Activated in window")]));
+    set("conclusion",t("此处统计去重商家漏斗，跟进清单按所选窗口更新。","The funnel counts unique merchants. Follow-up actions update with the selected window."));
+  }
+  render();
+}
+function dashboard() {
+  const baseline={version:"v41",date:"2026-11-04"};
+  const intended={version:"v42",date:"2026-11-05"};
+  let local=baseline, shared=baseline;
+  const fault=control("publish-fault",t("发布情景","Publishing scenario"),[["ok",t("正常发布","Normal publish")],["stale",t("回执成功但共享页未更新","Success receipt with stale shared view")],["partial",t("版本更新但数据日期仍旧","New version with stale data date")]],()=>{});
+  function button(zh,en,action){
+    const b=document.createElement("button");b.type="button";b.textContent=t(zh,en);b.addEventListener("click",action);byId("controls").append(b);return b;
+  }
+  const refresh=button("刷新本地","Refresh local",()=>{local=intended;render(t("本地刷新完成，等待发布。","Local refresh complete. Publish next."));});
+  const publish=button("模拟发布","Publish simulation",()=>{
+    if(local!==intended)return;
+    if(fault.value==="ok")shared={...local};
+    if(fault.value==="partial")shared={version:local.version,date:baseline.date};
+    render(t("发布接口返回成功，等待接收方回读。","Publish returned success. Read back the shared view."));
+  });
+  button("接收方回读","Read back shared view",()=>{
+    const pass=shared.version===intended.version&&shared.date===intended.date;
+    render(pass?t("验收通过：版本和数据日期都匹配。","PASS: version and data date both match."):t("验收失败：接收方版本或数据日期仍不匹配。","FAIL: receiver version or data date still differs."));
+  });
+  button("重置","Reset",()=>{local=baseline;shared=baseline;fault.value="ok";render(t("已重置。","Reset."));});
+  set("rules",t("验收对象是接收方视图。版本和数据日期必须同时对上目标值。操作只改变本页的模拟状态。","Acceptance checks the receiver's view. Both version and data date must match the expected values. Controls affect this simulation only."));
+  table("fixture",t(["样例状态","版本","数据日期"],["Fixture state","Version","Data date"]),[[t("初始共享","Initial shared"),baseline.version,baseline.date],[t("目标","Expected"),intended.version,intended.date]]);
+  function render(message){
+    publish.disabled=local!==intended;
+    table("results",t(["观察位置","版本","数据日期"],["Observation point","Version","Data date"]),[[t("本地","Local"),local.version,local.date],[t("共享端","Shared view"),shared.version,shared.date],[t("目标","Expected"),intended.version,intended.date]]);
+    set("conclusion",message);
+  }
+  render(t("先刷新本地，再模拟发布和回读。","Refresh locally, then publish and read back."));
+}
+
+({retention,coupon,delivery,checks,sourcing,contribution,incrementality,menuPack,bdFunnel,dashboard})[demo]();
 </script>
 </body>
 </html>
