@@ -56,6 +56,7 @@ flowchart TD
 | [回读核验专题](https://cosmodai.github.io/xiaodai-ai-showcase/#verify) | “保存 ≠ 生效、发送 ≠ 送达”的四个案例 |
 | [能力地图与案例](https://cosmodai.github.io/xiaodai-ai-showcase/#capabilities) | 16 个业务场景，各配一个合成数据案例 |
 | [视觉作品](https://cosmodai.github.io/xiaodai-ai-showcase/#creative) | 虚构品牌 Maple Wok 的菜品图、海报、项目封面与菜品图验收流程 |
+| [开源代码 xiaodai-guardrails](https://github.com/cosmodai/xiaodai-guardrails) | 从小戴抽出的路由闸、hook 心跳、闭环状态机，带 20 个测试 |
 | [公开 Skills](skills/) | 15 个可直接用于 Claude Code 的工作流，每个都附可复算示例和对应演示 |
 | [工程复盘](docs/) | [路由必须走类型化参数](docs/01-routing-must-be-typed.md) · [假完成](docs/02-phantom-done.md) · [用事故数据修正熔断器](docs/03-circuit-breaker-from-incident-data.md)（另有[英文版](docs/en/)） |
 
@@ -84,7 +85,7 @@ flowchart TD
 
 Running on a live business since May 27, 2026: 4,348 subagent dispatches, 21,857 scheduled job runs since Sep 28 (96.9% first-try success), and 25,247 outgoing sends checked by the completion gate since Sep 4, counted from its own ledgers.
 
-**Browse:** [English portfolio](https://cosmodai.github.io/xiaodai-ai-showcase/?lang=en) · [Execution trace replay](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html?lang=en) · [Funnel diagnostics](https://cosmodai.github.io/xiaodai-ai-showcase/funnel.html?lang=en) · [Storefront audit](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html?lang=en) · [Operations lab: 10 demos](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=contribution&lang=en) · [Public skills](skills/) · [Engineering notes](docs/en/)
+**Browse:** [English portfolio](https://cosmodai.github.io/xiaodai-ai-showcase/?lang=en) · [Execution trace replay](https://cosmodai.github.io/xiaodai-ai-showcase/trace.html?lang=en) · [Funnel diagnostics](https://cosmodai.github.io/xiaodai-ai-showcase/funnel.html?lang=en) · [Storefront audit](https://cosmodai.github.io/xiaodai-ai-showcase/storefront.html?lang=en) · [Operations lab: 10 demos](https://cosmodai.github.io/xiaodai-ai-showcase/lab.html?demo=contribution&lang=en) · [Public skills](skills/) · [Engineering notes](docs/en/) · [Open-source guardrails](https://github.com/cosmodai/xiaodai-guardrails)
 
 All data, brands and examples are synthetic or fictional. No source code or real business data is included.
 
