@@ -31,6 +31,7 @@ const t = (zh, english) => en ? english : zh;
 const byId = id => document.getElementById(id);
 const set = (id, value) => { byId(id).textContent = value; };
 const specs = {"retention": ["cohort-retention", "用户留存", "Cohort Retention", "只比较观察完整的首单批次，区分整体复购与无券复购。", "Compare mature first-order cohorts and distinguish repeat orders with and without a coupon."], "coupon": ["coupon-redemption", "红包核销", "Coupon Redemption", "核对发券、核销、费用和用户真实下单间隔。", "Reconcile issuance, redemption, funding and observed order gaps."], "delivery": ["delivery-tail-analysis", "配送长尾", "Delivery Tail Analysis", "对比均值、P90、长单率和超过预计送达上限的比例。", "Compare the mean, P90, long-duration share and missed delivery estimates."], "checks": ["known-answer-acceptance", "已知答案验收", "Known-Answer Acceptance", "运行同一组固定答案，看看有缺陷的实现如何被抓住。", "Run fixed expected answers against a correct or faulty implementation."]};
+Object.assign(specs,{"sourcing": ["competitive-merchant-sourcing", "竞对商圈与招商选品", "Competitive Merchant Sourcing", "按商圈和品类对照虚构平台目录，确认分店对应和价格证据。", "Compare fictional local catalogs and verify branch and pricing evidence."], "contribution": ["contribution-change-bridge", "经营与利润异动诊断", "Contribution Change Bridge", "从全市下钻到门店，核对订单量、每单收入、配送与补贴的贡献变化。", "Drill from market to store and reconcile the effects of order volume, revenue, delivery and subsidies."]});
 const requested = query.get("demo");
 const demo = Object.hasOwn(specs, requested) ? requested : "retention";
 const url = (key, english) => "?demo="+key+(english?"&lang=en":"");
@@ -174,7 +175,92 @@ function checks() {
   });
   set("conclusion",t("选一个版本并点击运行。","Choose an implementation and run the checks."));
 }
-({retention,coupon,delivery,checks})[demo]();
+function sourcing() {
+  const catalog = {
+    North: [
+      {name:"Maple Wok",site:"N-01",category:"Bowls",ref:1500,offer:1200,merchant:200,platform:100},
+      {name:"Cedar Bowl",site:"N-02",category:"Bowls",ref:1600,offer:1200,merchant:300,platform:100},
+      {name:"Jade Noodles",site:"N-03",category:"Noodles",ref:1400,offer:1100,merchant:200,platform:100},
+      {name:"Pine Noodles",site:"N-04",category:"Noodles",ref:null,offer:1100,merchant:null,platform:null}
+    ],
+    South: [
+      {name:"Maple Wok",site:"S-01",category:"Bowls",ref:1600,offer:1400,merchant:100,platform:100},
+      {name:"Jade Noodles",site:"S-02",category:"Noodles",ref:1400,offer:1200,merchant:200,platform:0},
+      {name:"Birch Bowl",site:"S-03",category:"Bowls",ref:null,offer:1300,merchant:null,platform:null}
+    ]
+  };
+  const reference = {North:[["Maple Wok","N-01","Bowls"],["Jade Noodles",null,"Noodles"]],South:[["Jade Noodles","S-02","Noodles"],["Birch Bowl",null,"Bowls"]]};
+  const area=control("sourcing-area",t("商圈","Area"),[["North",t("北区","North")],["South",t("南区","South")]],refresh);
+  const category=control("sourcing-category",t("品类","Category"),[["all",t("全部","All")],["Bowls",t("碗饭","Bowls")],["Noodles",t("面食","Noodles")]],refresh);
+  const candidate=control("sourcing-merchant",t("查看门店","Inspect listing"),[],render);
+  const status={matched:t("已匹配","Matched"),review:t("分店待核","Branch review"),gap:t("已确认缺口","Confirmed gap")};
+  const cat=value=>value==="Bowls"?t("碗饭","Bowls"):t("面食","Noodles");
+  const cash=cents=>cents===null?"—":"CA$"+(cents/100).toFixed(2);
+  const refRows=()=>reference[area.value].filter(([,site,kind])=>category.value==="all"||kind===category.value);
+  const selected=()=>catalog[area.value].filter(row=>category.value==="all"||row.category===category.value).map(row=>{
+    const matched=refRows().some(([,site])=>site===row.site);
+    const ambiguous=refRows().some(([name,site])=>name===row.name&&site===null);
+    return {...row,status:matched?"matched":ambiguous?"review":"gap"};
+  });
+  set("rules",t("表中为虚构竞对目录。按分店编号匹配，店名相同但对照目录缺少分店编号的记录进待核队列。折扣基于已核原价。","The rival catalog is fictional. Match on branch ID. A same-name reference listing without a branch ID goes to review. Discount uses a verified reference price."));
+  function refresh() {
+    candidate.replaceChildren(...selected().map(row=>new Option(row.name+" · "+row.site,row.site)));
+    render();
+  }
+  function render() {
+    const rows=selected();
+    const row=rows.find(r=>r.site===candidate.value) || rows[0];
+    if(!row)return;
+    const counts=key=>rows.filter(r=>r.status===key).length;
+    const cut=row.ref===null?"—":(100*(row.ref-row.offer)/row.ref).toFixed(1)+"%";
+    table("results",t(["门店","对应状态","原价","到手价","折扣","商家承担","平台承担"],["Listing","Match status","Reference price","Offer price","Discount","Merchant funding","Platform funding"]),[[row.name+" · "+row.site,status[row.status],cash(row.ref),cash(row.offer),cut,cash(row.merchant),cash(row.platform)]]);
+    table("fixture",t(["目录","门店","分店编号","品类","原价","到手价","商家承担","平台承担","对应状态"],["Catalog","Listing","Branch ID","Category","Reference price","Offer","Merchant funding","Platform funding","Match status"]),[
+      ...rows.map(r=>[t("竞对","Rival"),r.name,r.site,cat(r.category),cash(r.ref),cash(r.offer),cash(r.merchant),cash(r.platform),status[r.status]]),
+      ...refRows().map(([name,site,kind])=>[t("对照","Reference"),name,site??"—",cat(kind),"—","—","—","—","—"])
+    ]);
+    const action=row.status==="matched"?t("已有对应分店，转入价格对照。","Compare prices for the matched branch."):row.status==="review"?t("先确认对照平台的分店地址。","Confirm the reference platform branch address first."):row.ref===null?t("补齐同规格原价证据，再评估折扣。","Verify the reference price for the same item before judging the discount."):t("列入试谈，复核活动条件与补贴分摊。","Shortlist for outreach and confirm offer terms and funding.");
+    set("conclusion",t("已匹配 ","Matched ")+counts("matched")+t(" · 待核 "," · Review ")+counts("review")+t(" · 缺口 "," · Gaps ")+counts("gap")+"。 "+action);
+  }
+  refresh();
+}
+function contribution() {
+  // Tuple order: orders, revenue cents per order, delivery cents, subsidy cents.
+  const stores=[
+    ["North","Cedar Bowl",[100,1000,400,200],[90,1100,500,300]],
+    ["North","Pine Noodles",[50,900,300,200],[60,900,300,200]],
+    ["South","Birch Bowl",[80,1000,400,200],[80,1000,350,200]],
+    ["South","Jade Noodles",[70,900,300,200],[65,900,300,200]]
+  ];
+  const area=control("bridge-area",t("区域","Area"),[["all",t("全市","All areas")],["North",t("北区","North")],["South",t("南区","South")]],refresh);
+  const store=control("bridge-store",t("门店","Store"),[],render);
+  const cash=(cents,signed=false)=>(cents<0?"−":cents>0&&signed?"+":"")+"CA$"+(Math.abs(cents)/100).toFixed(2);
+  const areaName=v=>v==="North"?t("北区","North"):t("南区","South");
+  const visible=()=>stores.filter(row=>area.value==="all"||row[0]===area.value);
+  set("rules",t("示例贡献 = 订单量 ×（每单收入 − 配送成本 − 补贴）。规模效应用基准单均贡献，其余效应用本期订单量。先按门店计算，再加总。","Illustrative contribution = orders × (revenue − delivery cost − subsidy per order). Use baseline unit contribution for volume and current orders for unit effects. Compute each store first, then sum."));
+  function refresh() {
+    store.replaceChildren(new Option(t("全部门店","All stores"),"all"),...visible().map(r=>new Option(r[1],r[1])));
+    render();
+  }
+  function render() {
+    const rows=visible().filter(r=>store.value==="all"||r[1]===store.value);
+    const results=rows.map(([market,name,[n0,r0,d0,s0],[n1,r1,d1,s1]])=>{
+      const base=n0*(r0-d0-s0),current=n1*(r1-d1-s1);
+      const effects=[(n1-n0)*(r0-d0-s0),n1*(r1-r0),-n1*(d1-d0),-n1*(s1-s0)];
+      const delta=current-base;
+      return [base,current,delta,...effects,delta-effects.reduce((a,b)=>a+b,0)];
+    });
+    const totals=results.reduce((sum,row)=>sum.map((value,i)=>value+row[i]),Array(8).fill(0));
+    table("results",t(["门店","基准贡献","本期贡献","差额","订单量","每单收入","每单配送","每单补贴","残差"],["Store","Baseline","Current","Change","Volume","Unit revenue","Unit delivery","Unit subsidy","Residual"]),[
+      ...results.map((values,i)=>[rows[i][1],...values.map((v,j)=>cash(v,j>=2&&j<7))]),
+      [t("所选范围合计","Selected total"),...totals.map((v,j)=>cash(v,j>=2&&j<7))]
+    ]);
+    table("fixture",t(["区域","门店","期间","订单","每单收入","每单配送","每单补贴"],["Area","Store","Period","Orders","Unit revenue","Unit delivery","Unit subsidy"]),rows.flatMap(([market,name,base,current])=>[[areaName(market),name,t("基准","Baseline"),base[0],...base.slice(1).map(v=>cash(v))],[areaName(market),name,t("本期","Current"),current[0],...current.slice(1).map(v=>cash(v))]]));
+    set("conclusion",t("所选范围贡献变化 ","Selected contribution change ")+cash(totals[2],true)+t("，桥接残差 "," · Bridge residual ")+cash(totals[7])+".");
+  }
+  refresh();
+}
+
+({retention,coupon,delivery,checks,sourcing,contribution})[demo]();
 </script>
 </body>
 </html>
