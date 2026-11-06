@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hans">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>执行轨迹回放 · 小戴 AI</title>
+<link rel="stylesheet" href="style.css">
+<nav><a href="index.html">← 小戴 AI 作品集</a></nav>
+<main>
+<header>
+<p class="kicker">03 / 多 agent 编排</p>
+<h1>一次任务的执行轨迹</h1>
+<p>用合成记录回放小戴处理一个定时任务的全过程：主脑派单、hook 拦截、子 agent 声称完成、完成断言回读，直到收到回执。逐步点击，看每一步留下的证据。</p>
+</header>
+<section>
+<h2>任务</h2>
+<p>每周一早上自动生成「北区周报」，数据截至上周日，发到运营群。</p>
+<label class="toggle"><input type="checkbox" id="assert" checked> 启用完成断言（关掉试试会发生什么）</label>
+<div class="controls">
+<button id="next" type="button">下一步</button>
+<button id="play" type="button">自动播放</button>
+<button id="reset" type="button">重置</button>
+</div>
+</section>
+<div class="trace">
+<ol id="steps" class="steps" aria-live="polite"></ol>
+<section id="detail" class="detail">
+<h2>证据</h2>
+<p class="muted">点击“下一步”开始。</p>
+</section>
+</div>
+<section id="outcome" hidden></section>
+<section>
+<h2>这段回放说明了什么</h2>
+<p>第 2 步：路由写成一句话是无效的，hook 也看不到。只有调用调度工具、带上枚举参数，派单才算发生。</p>
+<p>第 4 步：外发动作只能经过发件箱，子 agent 直接发消息会在调用前被拦下。</p>
+<p>第 6 步：子 agent 说“完成”，但回读发现数据日期是上上周。断言让这次“完成”变成退回。</p>
+<p>所有记录均为合成示例，结构参照真实运行方式简化。</p>
+</section>
+</main>
+<script src="trace.js" defer></script>
+</html>

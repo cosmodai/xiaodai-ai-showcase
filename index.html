@@ -4,14 +4,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>小戴 AI · 公开作品集</title>
 <link rel="stylesheet" href="style.css">
-<nav>小戴 AI / 作品集 · <a href="#capabilities">能力地图</a> · <a href="#creative">视觉作品</a></nav>
+<nav>小戴 AI / 作品集 · <a href="#how">怎么运作</a> · <a href="#demos">在线演示</a> · <a href="#verify">回读核验</a> · <a href="#capabilities">能力地图</a> · <a href="#creative">视觉作品</a> · <a href="#docs">工程复盘</a></nav>
 <main>
 <header>
 <p class="kicker">XIAODAI AI · 公开演示</p>
-<h1>小戴 AI 业务能力作品集</h1>
-<p>覆盖餐饮外卖的经营分析、营销、门店运营与交付核验。先体验两个浏览器工具，再按业务场景浏览能力地图。</p>
+<h1>小戴 AI：跑在真实业务上的多 agent 系统</h1>
+<p>小戴是一个常驻运行的多 agent 运营系统，基于 Claude 原生工具调用构建，每天处理餐饮外卖的经营分析、营销、门店运营与交付核验。这里展示它怎么运作、能做什么，以及踩过的坑。所有公开数据均为合成示例。</p>
 </header>
-<h2>在线演示</h2>
+<section id="how" class="feature">
+<p class="kicker">小戴怎么运作</p>
+<h2>一个主脑调度，多个子 agent 分工，治理层把关</h2>
+<p class="lead">核心理念：<strong>靠架构保证，不靠模型记。</strong>凡是“必须做到”的事，都落在工具参数、hook 和回读断言上，而不是写进提示词指望模型记住。</p>
+<figure class="arch">
+<div class="arch-scroll"><svg viewBox="0 0 880 560" role="img" aria-labelledby="arch-title arch-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="arch-title">小戴架构图</title>
+<desc id="arch-desc">定时任务、消息渠道和语音入口把任务交给主脑；主脑查询记忆库，通过类型化的调度工具把任务派给子 agent；治理层的 hooks、守护 agent 和管理 agent 检查每一次工具调用；子 agent 的结果经过完成断言回读，再由发件箱投递并等待回执。</desc>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="a-head"/></marker></defs>
+<g class="a-in">
+<rect x="40" y="20" width="240" height="64" rx="12"/><text x="160" y="47">定时任务</text><text x="160" y="68" class="s">数十个，按计划自动触发</text>
+<rect x="320" y="20" width="240" height="64" rx="12"/><text x="440" y="47">消息渠道</text><text x="440" y="68" class="s">经常驻中继进出</text>
+<rect x="600" y="20" width="240" height="64" rx="12"/><text x="720" y="47">语音 / 手动</text><text x="720" y="68" class="s">手机快捷指令等入口</text>
+</g>
+<path d="M160,84 L400,150" class="a-line" marker-end="url(#ah)"/><path d="M440,84 L440,150" class="a-line" marker-end="url(#ah)"/><path d="M720,84 L480,150" class="a-line" marker-end="url(#ah)"/>
+<g class="a-core"><rect x="320" y="152" width="240" height="78" rx="14"/><text x="440" y="185">主脑</text><text x="440" y="208" class="s">理解任务、选路由、不亲自下场</text></g>
+<g class="a-side">
+<rect x="40" y="160" width="220" height="62" rx="12"/><text x="150" y="186">记忆库</text><text x="150" y="207" class="s">数百条条目，语义检索</text>
+</g>
+<path d="M260,191 L318,191" class="a-line" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<g class="a-gov">
+<rect x="620" y="140" width="220" height="290" rx="14"/>
+<text x="730" y="170">治理层</text>
+<text x="730" y="200" class="s">PreToolUse：调用前拦截</text>
+<text x="730" y="224" class="s">PostToolUse：动作留痕</text>
+<text x="730" y="248" class="s">SubagentStop：交接核对</text>
+<text x="730" y="280" class="s">守护 agent：异常巡检</text>
+<text x="730" y="304" class="s">管理 agent：负载与熔断</text>
+<text x="730" y="336" class="s">熔断器带滞回，</text>
+<text x="730" y="358" class="s">闭环状态机有硬中止入口</text>
+</g>
+<path d="M440,230 L440,272" class="a-line" marker-end="url(#ah)"/>
+<g class="a-tool"><rect x="300" y="274" width="280" height="52" rx="12"/><text x="440" y="298">调度工具</text><text x="440" y="317" class="s">路由是枚举参数，不是一段文字</text></g>
+<path d="M580,300 L618,300" class="a-dash" marker-end="url(#ah)"/>
+<path d="M440,326 L440,356" class="a-line" marker-end="url(#ah)"/>
+<g class="a-sub">
+<rect x="40" y="358" width="120" height="50" rx="10"/><text x="100" y="388">子 agent</text>
+<rect x="172" y="358" width="120" height="50" rx="10"/><text x="232" y="388">子 agent</text>
+<rect x="304" y="358" width="120" height="50" rx="10"/><text x="364" y="388">子 agent</text>
+<rect x="436" y="358" width="120" height="50" rx="10"/><text x="496" y="388">子 agent</text>
+<text x="590" y="388" class="s">…</text>
+</g>
+<text x="300" y="430" class="s">固定分工，按职能接单</text>
+<path d="M300,440 L300,470" class="a-line" marker-end="url(#ah)"/>
+<g class="a-check">
+<rect x="40" y="472" width="250" height="64" rx="12"/><text x="165" y="499">完成断言</text><text x="165" y="520" class="s">回读实际结果，不信自报</text>
+<rect x="330" y="472" width="220" height="64" rx="12"/><text x="440" y="499">发件箱</text><text x="440" y="520" class="s">统一外发，可补发</text>
+<rect x="590" y="472" width="250" height="64" rx="12"/><text x="715" y="499">回执归档</text><text x="715" y="520" class="s">同一任务编号签收才算完成</text>
+</g>
+<path d="M290,504 L328,504" class="a-line" marker-end="url(#ah)"/><path d="M550,504 L588,504" class="a-line" marker-end="url(#ah)"/>
+<path d="M90,472 C40,450 30,420 40,410" class="a-dash" marker-end="url(#ah)"/>
+<text x="100" y="456" class="s l">不通过就退回</text>
+</svg></div>
+<figcaption>架构示意。组件名称为公开说明用的概括，实际部署细节未公开。</figcaption>
+</figure>
+<div class="grid">
+<article><h3>调度靠参数，不靠文字</h3><p>主脑把“交给谁”写成调度工具的枚举参数。hook 能检查参数，却拦不住一段普通文字，所以路由信号必须走工具。</p></article>
+<article><h3>完成靠回读，不靠自报</h3><p>每类任务都有可机器检查的完成条件。子 agent 说“做完了”只是申请，回读通过、回执到手才算数。</p></article>
+<article><h3>出事靠熔断，不靠自觉</h3><p>负载过高或连续高风险改动时，熔断器直接拒绝新的动作，等状态回落再放行，避免系统在疲劳状态下继续改自己。</p></article>
+<article><h3>记忆靠检索，不靠上下文</h3><p>长期事实存进记忆库按需检索，任务状态写进固定格式的任务文件，重启后从文件恢复，而不是靠对话历史。</p></article>
+</div>
+</section>
+<h2 id="demos">在线演示</h2>
 <div class="grid">
 <article>
 <p class="kicker">01 / 数据质量</p>
@@ -25,7 +87,25 @@
 <p>调整订单量和每单补贴，把假设结果与基准放在一起看。</p>
 <a href="campaign.html">体验营销情景模拟 →</a>
 </article>
+<article>
+<p class="kicker">03 / 多 agent 编排</p>
+<h2>执行轨迹回放</h2>
+<p>逐步回放一次定时任务：派单、hook 拦截、子 agent 自报完成、断言回读、回执归档。可以关掉完成断言对比。</p>
+<a href="trace.html">体验执行轨迹回放 →</a>
+</article>
 </div>
+<section id="verify" class="feature">
+<p class="kicker">专题 · 不信自报，回读核验</p>
+<h2>agent 说“做完了”，只是一份申请</h2>
+<p class="lead">多 agent 系统最常见的失败之一，是 agent 宣布完成，但实际效果没有发生：配置保存了却没生效，看板刷新了但对方看到的还是旧版，消息“已发送”却没有送达。小戴的做法是给每类任务定一个能机器检查的完成条件，回读实际结果，对不上就退回重做。</p>
+<div class="grid">
+<article><p class="kicker">活动配置</p><h3>保存 ≠ 生效</h3><p>配置通过后再去顾客侧回读，发现门店 B 的商品下架，活动实际只在 A 可见。</p><a href="#case-11">看案例 11 →</a></article>
+<article><p class="kicker">看板发布</p><h3>刷新 ≠ 对方看到</h3><p>本地已是 v42，共享页面还停在 v41。补发布后，以接收方视图的版本号和数据日期为准。</p><a href="#case-13">看案例 13 →</a></article>
+<article><p class="kicker">消息投递</p><h3>已发送 ≠ 已送达</h3><p>投递失败后沿用同一任务编号补发，收到签收回执才归档。</p><a href="#case-15">看案例 15 →</a></article>
+<article><p class="kicker">版本交付</p><h3>本机通过 ≠ 对方能跑</h3><p>以接收方环境的实际运行输出作为交付依据，并留好回退包。</p><a href="#case-16">看案例 16 →</a></article>
+</div>
+<p><a href="trace.html">在执行轨迹演示里，关掉完成断言看看会发生什么 →</a></p>
+</section>
 <div id="capabilities">
 <h2>能力地图</h2>
 <p>按可公开说明的业务场景整理。每项能力都链接到演示或案例。所有案例采用合成数据和虚构业务场景。</p>
@@ -191,11 +271,20 @@
 <section id="case-08"><p class="kicker">08 / 案例</p><h3>平均配送时间相同，长尾不同</h3><div style="overflow-x:auto"><table><thead><tr><th>区域</th><th>已完成订单</th><th>平均耗时</th><th>P90</th><th>超过 60 分钟</th></tr></thead><tbody><tr><td>东区</td><td>300</td><td>38 分钟</td><td>53 分钟</td><td>18（6%）</td></tr><tr><td>西区</td><td>300</td><td>38 分钟</td><td>68 分钟</td><td>42（14%）</td></tr></tbody></table></div><p>优先查西区高峰长尾。再结合备餐、到店等待、取餐和送达时间分段核对，当前汇总不能判定责任。</p></section>
 <section id="case-09"><p class="kicker">09 / 案例</p><h3>检验活动组的复购差异</h3><div style="overflow-x:auto"><table><thead><tr><th>组别</th><th>人数</th><th>复购</th><th>复购率</th></tr></thead><tbody><tr><td>对照</td><td>1,000</td><td>100</td><td>10%</td></tr><tr><td>活动</td><td>1,000</td><td>120</td><td>12%</td></tr></tbody></table></div><p>差值 +2.0 个百分点。独立二项比例差的近似 95% 置信区间约为 −0.7 至 +4.7 个百分点。区间跨 0，先保留不确定性。</p></section>
 <section id="case-10"><p class="kicker">10 / 案例</p><h3>创意图制作｜虚构餐饮活动海报</h3><p><a href="#creative">查看活动海报与相关视觉作品 →</a></p><div style="overflow-x:auto"><table><thead><tr><th>交付项</th><th>内容</th></tr></thead><tbody><tr><td>品牌</td><td>Maple Wok（虚构）</td></tr><tr><td>主视觉</td><td>枫糖辣鸡饭，以菜品近景作为焦点</td></tr><tr><td>文案层级</td><td>品牌名 → 活动主标题 → 菜品描述 → 概念样张标识</td></tr></tbody></table></div><p>公开展示成品和设计思路。同一主视觉可以继续扩展为商品卡、门店横幅和社媒尺寸。</p></section>
-<section id="case-11"><p class="kicker">11 / 案例</p><h3>促销配置保存后的实效核验</h3><div style="overflow-x:auto"><table><thead><tr><th>检查点</th><th>观测</th><th>结论</th></tr></thead><tbody><tr><td>配置</td><td>有效日期和门店范围正确</td><td>配置通过</td></tr><tr><td>商品状态</td><td>门店 A 在售，门店 B 下架</td><td>门店 B 阻塞</td></tr><tr><td>顾客侧回读</td><td>A 显示活动价，B 搜索不到商品</td><td>仅确认 A 可见</td></tr></tbody></table></div><p>记录观察时点及门店范围。等 B 商品恢复在售，再重新核验前台价格和参与条件。</p></section>
-<section id="case-13"><p class="kicker">13 / 案例</p><h3>共享看板回读</h3><div style="overflow-x:auto"><table><thead><tr><th>检查项</th><th>刷新后</th><th>补发布并回读</th></tr></thead><tbody><tr><td>本地构建</td><td>v42 / 11 月 5 日</td><td>v42 / 11 月 5 日</td></tr><tr><td>共享页面</td><td>v41 / 11 月 4 日</td><td>v42 / 11 月 5 日</td></tr><tr><td>接收方视图</td><td>版本不一致</td><td>版本与数据日期一致</td></tr></tbody></table></div><p>把共享页面的版本和数据日期纳入验收。上面的回读用的是模拟记录。</p></section>
+<section id="case-11"><p class="kicker">11 / 案例 · <a href="#verify">回读核验专题</a></p><h3>促销配置保存后的实效核验</h3><div style="overflow-x:auto"><table><thead><tr><th>检查点</th><th>观测</th><th>结论</th></tr></thead><tbody><tr><td>配置</td><td>有效日期和门店范围正确</td><td>配置通过</td></tr><tr><td>商品状态</td><td>门店 A 在售，门店 B 下架</td><td>门店 B 阻塞</td></tr><tr><td>顾客侧回读</td><td>A 显示活动价，B 搜索不到商品</td><td>仅确认 A 可见</td></tr></tbody></table></div><p>记录观察时点及门店范围。等 B 商品恢复在售，再重新核验前台价格和参与条件。</p></section>
+<section id="case-13"><p class="kicker">13 / 案例 · <a href="#verify">回读核验专题</a></p><h3>共享看板回读</h3><div style="overflow-x:auto"><table><thead><tr><th>检查项</th><th>刷新后</th><th>补发布并回读</th></tr></thead><tbody><tr><td>本地构建</td><td>v42 / 11 月 5 日</td><td>v42 / 11 月 5 日</td></tr><tr><td>共享页面</td><td>v41 / 11 月 4 日</td><td>v42 / 11 月 5 日</td></tr><tr><td>接收方视图</td><td>版本不一致</td><td>版本与数据日期一致</td></tr></tbody></table></div><p>把共享页面的版本和数据日期纳入验收。上面的回读用的是模拟记录。</p></section>
 <section id="case-14"><p class="kicker">14 / 案例</p><h3>活动申请的补件与复核</h3><div style="overflow-x:auto"><table><thead><tr><th>阶段</th><th>输入</th><th>结果</th></tr></thead><tbody><tr><td>收件</td><td>活动范围和日期已填，商家承担比例空白</td><td>退回补件</td></tr><tr><td>补件</td><td>承担比例 40%，附报价明细</td><td>进入复核</td></tr><tr><td>复核</td><td>比例与报价一致</td><td>记录通过</td></tr></tbody></table></div><p>公开样例用虚构申请，展示缺项提醒、补件与最终复核三步。</p></section>
-<section id="case-15"><p class="kicker">15 / 案例</p><h3>一次未送达任务的恢复</h3><div style="overflow-x:auto"><table><thead><tr><th>状态</th><th>证据</th><th>处理</th></tr></thead><tbody><tr><td>待发送</td><td>生成交付包及任务编号</td><td>按指定接收方投递</td></tr><tr><td>投递失败</td><td>接收地址已失效</td><td>更新接收地址后补发</td></tr><tr><td>已确认</td><td>收到同一任务编号的签收回执</td><td>归档</td></tr></tbody></table></div><p>补发沿用同一个任务编号，签收后记录接收方、时间和交付版本。</p></section>
-<section id="case-16"><p class="kicker">16 / 案例</p><h3>账务版本的接收方验收</h3><div style="overflow-x:auto"><table><thead><tr><th>阶段</th><th>模拟验收项</th><th>记录</th></tr></thead><tbody><tr><td>升级前</td><td>接收环境、基准版本、回退包</td><td>v1，基准样例可运行</td></tr><tr><td>升级后</td><td>版本和对账样例</td><td>v2，期初 + 变动 = 期末</td></tr><tr><td>交付</td><td>接收方环境实际运行</td><td>v2 样例通过并回执</td></tr></tbody></table></div><p>用接收方实际运行的输出作为交付依据。样例仅展示流程。</p></section>
+<section id="case-15"><p class="kicker">15 / 案例 · <a href="#verify">回读核验专题</a></p><h3>一次未送达任务的恢复</h3><div style="overflow-x:auto"><table><thead><tr><th>状态</th><th>证据</th><th>处理</th></tr></thead><tbody><tr><td>待发送</td><td>生成交付包及任务编号</td><td>按指定接收方投递</td></tr><tr><td>投递失败</td><td>接收地址已失效</td><td>更新接收地址后补发</td></tr><tr><td>已确认</td><td>收到同一任务编号的签收回执</td><td>归档</td></tr></tbody></table></div><p>补发沿用同一个任务编号，签收后记录接收方、时间和交付版本。</p></section>
+<section id="case-16"><p class="kicker">16 / 案例 · <a href="#verify">回读核验专题</a></p><h3>账务版本的接收方验收</h3><div style="overflow-x:auto"><table><thead><tr><th>阶段</th><th>模拟验收项</th><th>记录</th></tr></thead><tbody><tr><td>升级前</td><td>接收环境、基准版本、回退包</td><td>v1，基准样例可运行</td></tr><tr><td>升级后</td><td>版本和对账样例</td><td>v2，期初 + 变动 = 期末</td></tr><tr><td>交付</td><td>接收方环境实际运行</td><td>v2 样例通过并回执</td></tr></tbody></table></div><p>用接收方实际运行的输出作为交付依据。样例仅展示流程。</p></section>
+<section id="docs" class="feature">
+<p class="kicker">工程复盘</p>
+<h2>踩过的坑和修法</h2>
+<ul class="docs">
+<li><a href="https://github.com/cosmodai/xiaodai-ai-showcase/blob/main/docs/01-routing-must-be-typed.md">路由信号必须走类型化参数</a>：为什么 hook 拦不住写在文字里的路由，以及改成枚举参数之后的变化。</li>
+<li><a href="https://github.com/cosmodai/xiaodai-ai-showcase/blob/main/docs/02-phantom-done.md">假完成，以及为什么要让机器来判定完成</a>：agent 说“做完了”和世界真的变了之间的差距。</li>
+<li><a href="https://github.com/cosmodai/xiaodai-ai-showcase/blob/main/docs/03-circuit-breaker-from-incident-data.md">用事故数据修正熔断器设计</a>：回放负载曲线后，发现真正该拦的是连续改动，而不是高负载。</li>
+</ul>
+</section>
 <footer>所有数据和公式均为公开演示示例。</footer>
 </main>
 </html>
